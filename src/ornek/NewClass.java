@@ -8,7 +8,6 @@ package ornek;
  *
  * @author Mehmet
  */
-public class denemeClass {
-    private int id;
-    private int a;
+public class NewClass {
+    
 }
