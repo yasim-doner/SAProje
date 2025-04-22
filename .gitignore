@@ -1,6 +1,9 @@
 /bin/
 
-.xml
-.mf
+*.xml
+*.mf
+*.DBproject
 
 /nbproject
+
+/.idea
