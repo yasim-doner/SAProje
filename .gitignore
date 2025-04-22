@@ -2,7 +2,7 @@
 
 *.xml
 *.mf
-*.DBproject
+*.DS_store
 
 /nbproject
 
