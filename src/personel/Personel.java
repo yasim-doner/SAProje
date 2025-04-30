@@ -29,6 +29,7 @@ public class Personel {
     public int getId() { return id; }
     public String getAd() { return ad; }
     public String getSoyad() { return soyad; }
+    public String getAdSoyad() {return ad + " " + soyad;}
     public String getGorev() { return gorev; }
     public double getMaas() { return maas; }
     public String getDepartman() { return departman; }
