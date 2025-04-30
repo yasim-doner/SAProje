@@ -5,5 +5,5 @@
 *.DS_store
 
 /nbproject
-
 /.idea
+.DS_Store
