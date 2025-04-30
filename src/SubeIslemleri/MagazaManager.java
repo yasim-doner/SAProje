@@ -31,7 +31,7 @@ public class MagazaManager {
 
     public void personelListele() {
         for (Personel personel : magaza.getPersonelListesi()) {
-            System.out.println(personel.getAdSoyad() + " - Pozisyon: " + personel.getPozisyon());
+            System.out.println(personel.getAdSoyad() + " - Gorev: " + personel.getGorev());
         }
     }
     public Siparis siparisOlustur(Map<Urun, Integer> istenenUrunler) {
