@@ -1,5 +1,7 @@
 package siparisVeLojistik;
 
+import urun.*;
+
 public class DepoUrun {
 	private Urun urun;
 	private int adet;
