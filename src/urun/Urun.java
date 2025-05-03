@@ -13,14 +13,14 @@ public class Urun {
 	private Kampanya kampanya;
 	
 	
-	public Urun(int barkod, String isim, double brutFiyat, double alisFiyat, LocalDate skTarihi, Kampanya kampanya) {
+	public Urun(int barkod, String isim, double brutFiyat, double alisFiyat, LocalDate skTarihi) {
 		super();
 		this.barkod = barkod;
 		this.isim = isim;
 		this.brutFiyat = brutFiyat;
 		this.alisFiyat = alisFiyat;
 		this.skTarihi = skTarihi;
-		this.kampanya = kampanya;
+		this.kampanya = null;
 		fiyatGecmisi = new HashMap<>();
 	}
 
