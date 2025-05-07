@@ -1,8 +1,6 @@
 package GUI;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -14,7 +12,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.table.DefaultTableModel;
 
 import urun.*;
-import personal.*;
+import personel.*;
 import siparisVeLojistik.*;
 import SubeIslemleri.*;
 
