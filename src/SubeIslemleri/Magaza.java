@@ -5,6 +5,7 @@ import personel.Personel;
 import urun.Urun;
 import java.util.ArrayList;
 import java.util.Map;
+import siparisVeLojistik.Depo;
 
 public class Magaza{
     private String magazaAdi;
@@ -13,14 +14,16 @@ public class Magaza{
     private double ciro;
     private Map<Urun, Integer> urunler; // ürün adı - adet
     private ArrayList<Personel> personelListesi;
+    private Depo depo;
 
-    public Magaza(String magazaAdi, String magazaAdres, Map<Urun, Integer> urunler, ArrayList<Personel> personelListesi) {
+    public Magaza(String magazaAdi, String magazaAdres, Map<Urun, Integer> urunler, ArrayList<Personel> personelListesi,Depo depo) {
         this.magazaAdi = magazaAdi;
         this.magazaAdres = magazaAdres;
         this.urunler = urunler;
         this.personelListesi = personelListesi;
         this.gelenMusteriSayisi = 0;
         this.ciro = 0.0;
+        this.depo = depo;
     }
 
     public int getGelenMusteriSayisi() {
@@ -54,4 +57,9 @@ public class Magaza{
     public String getMagazaAdres() {
         return magazaAdres;
     }    
+
+    public Depo getDepo() {
+        return depo;
+    }
+    
 }

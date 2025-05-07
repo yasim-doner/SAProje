@@ -34,7 +34,7 @@ public class MagazaManager {
             System.out.println(personel.getAdSoyad() + " - Gorev: " + personel.getGorev());
         }
     }
-    public Siparis siparisOlustur(Map<Urun, Integer> istenenUrunler) {
+    public void siparisOlustur(Map<Urun, Integer> istenenUrunler) {
         Map<Urun, Integer> gecerliSiparisler = new HashMap<>();
 
         for (Map.Entry<Urun, Integer> entry : istenenUrunler.entrySet()) {
@@ -45,21 +45,23 @@ public class MagazaManager {
                 System.out.println("Ürün bulunamadı: " + urun.getIsim());
                 continue; // Ürün yoksa atla
             }
-
-            gecerliSiparisler.put(urun, adet);
+            
+            
+            if(magaza.getDepo().magazayaTedarikEt(magaza, urun, adet)){
+                gecerliSiparisler.put(urun, adet);
+                magaza.getUrunler().put(urun, adet);
+            }
         }
 
         if (gecerliSiparisler.isEmpty()) {
             System.out.println("Hiç geçerli ürün yok, sipariş oluşturulamadı.");
-            return null;
+            return;
         }
-
+        
         System.out.println("Sipariş oluşturuldu:");
         for (Map.Entry<Urun, Integer> entry : gecerliSiparisler.entrySet()) {
             System.out.println("- " + entry.getKey().getIsim() + " : " + entry.getValue() + " adet");
         }
-
-        return new Siparis(gecerliSiparisler, magaza.getMagazaAdi());
     }
 
     

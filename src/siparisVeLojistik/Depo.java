@@ -87,10 +87,9 @@ public class Depo {
 				if(depoUrun.getAdet() >= adet) {
 					depoUrun.setAdet(depoUrun.getAdet() - adet);
 					urunMiktari = urunMiktari - adet;
-					System.out.println("Siparis basariyla yola cikti.");
 					return true;
 				}else {
-					System.out.println("Depoda istenilen sayida urun bulunmamakta!");
+					System.out.println("Depoda istenilen sayida urun bulunmamakta!" + urun.getIsim());
 					return false;
 				}
 			}
