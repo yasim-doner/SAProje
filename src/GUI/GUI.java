@@ -11,6 +11,7 @@ import java.util.Properties;
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.table.DefaultTableModel;
 
 import urun.*;
 import personal.*;
@@ -55,7 +56,7 @@ public class GUI {
         
         // "Depo"nun alt seçenekleri
         JMenuItem depoEkleItem = new JMenuItem("Depo Ekle");
-        JMenuItem depoSiparisItem = new JMenuItem("Depo Ekle");
+        JMenuItem depoSiparisItem = new JMenuItem("Depoya Urun Siparis Et");
         
 
         // "Ürün" menüsüne alt seçenekleri ekle
@@ -297,6 +298,241 @@ public class GUI {
 
             kampanyaEklePenceresi.setVisible(true);
         });
+        
+        depoEkleItem.addActionListener(e -> {
+            JFrame depoEklePenceresi = new JFrame("Depo Ekle");
+            depoEklePenceresi.setSize(350, 250);
+            depoEklePenceresi.setResizable(false);
+            depoEklePenceresi.setLocationRelativeTo(null);
+            depoEklePenceresi.setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.anchor = GridBagConstraints.WEST;
+
+            JLabel depoAdiLabel = new JLabel("Depo Adı:");
+            JTextField depoAdiField = new JTextField(12);
+
+            JLabel konumLabel = new JLabel("Depo Konumu:");
+            JTextField konumField = new JTextField(12);
+
+            JLabel kapasiteLabel = new JLabel("Depo Kapasitesi:");
+            JTextField kapasiteField = new JTextField(12);
+
+            JLabel urunKapasiteLabel = new JLabel("Ürün Başına Kapasite:");
+            JTextField urunKapasiteField = new JTextField(12);
+
+            JButton kaydetButton = new JButton("Kaydet");
+
+            int row = 0;
+
+            gbc.gridx = 0; gbc.gridy = row;
+            depoEklePenceresi.add(depoAdiLabel, gbc);
+            gbc.gridx = 1;
+            depoEklePenceresi.add(depoAdiField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            depoEklePenceresi.add(konumLabel, gbc);
+            gbc.gridx = 1;
+            depoEklePenceresi.add(konumField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            depoEklePenceresi.add(kapasiteLabel, gbc);
+            gbc.gridx = 1;
+            depoEklePenceresi.add(kapasiteField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            depoEklePenceresi.add(urunKapasiteLabel, gbc);
+            gbc.gridx = 1;
+            depoEklePenceresi.add(urunKapasiteField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+            depoEklePenceresi.add(kaydetButton, gbc);
+
+            kaydetButton.addActionListener(evt -> {
+                String depoAdi = depoAdiField.getText().trim();
+                String konum = konumField.getText().trim();
+                String kapasiteStr = kapasiteField.getText().trim();
+                String urunKapasiteStr = urunKapasiteField.getText().trim();
+
+                if (depoAdi.isEmpty() || konum.isEmpty() || kapasiteStr.isEmpty() || urunKapasiteStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(depoEklePenceresi, "Lütfen tüm alanları doldurun!");
+                    return;
+                }
+
+                try {
+                    int kapasite = Integer.parseInt(kapasiteStr);
+                    int urunKapasite = Integer.parseInt(urunKapasiteStr);
+                    
+                    Depo depo = new Depo(konum, depoAdi, kapasite, urunKapasite);
+                    sistem.depoEkle(depo);
+                    
+                    JOptionPane.showMessageDialog(depoEklePenceresi,
+                            "Depo kaydedildi:\nAd: " + depoAdi + "\nKonum: " + konum +
+                                    "\nKapasite: " + kapasite + "\nÜrün Başına: " + urunKapasite);
+
+                    depoEklePenceresi.dispose();
+
+                }catch (DuplicateInfoException ex) {
+                	JOptionPane.showMessageDialog(depoEklePenceresi, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(depoEklePenceresi, "Kapasite alanlarına sadece sayı girin!");
+                }
+            });
+
+            depoEklePenceresi.setVisible(true);
+        });
+        
+        depoSiparisItem.addActionListener(e -> {
+            JFrame siparisPenceresi = new JFrame("Depo Siparişi");
+            siparisPenceresi.setSize(500, 500);
+            siparisPenceresi.setResizable(false);
+            siparisPenceresi.setLocationRelativeTo(null);
+            siparisPenceresi.setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+
+            // === Giriş Bileşenleri ===
+            JLabel siparisNoLabel = new JLabel("Sipariş No:");
+            JTextField siparisNoField = new JTextField(10);
+
+            JLabel tedarikciLabel = new JLabel("Tedarikçi Adı:");
+            JTextField tedarikciField = new JTextField(12);
+
+            JLabel urunlerLabel = new JLabel("Sipariş Ürünleri:");
+
+            // Örnek ürün listesi ve adet tablosu
+            String[] columnNames = {"Ürün", "Adet"};
+            Object[][] data = new Object[sistem.getUrunler().size()][2];
+            for (int i=0; i<sistem.getUrunler().size(); i++) {
+				data[i][0] = sistem.getUrunler().get(i);
+				data[i][1] = 0;
+			}
+
+            DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
+                /**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
+				@Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 1; // Sadece 'Adet' sütunu düzenlenebilir
+                }
+
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    return (columnIndex == 1) ? Integer.class : String.class;
+                }
+            };
+
+            JTable urunTable = new JTable(tableModel);
+            JScrollPane urunScroll = new JScrollPane(urunTable);
+            urunScroll.setPreferredSize(new Dimension(250, 100));
+
+            JLabel tarihLabel = new JLabel("Teslim Tarihi:");
+            UtilDateModel model = new UtilDateModel();
+            Properties p = new Properties();
+            p.put("text.today", "Bugün");
+            p.put("text.month", "Ay");
+            p.put("text.year", "Yıl");
+            JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+            JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateComponentFormatter());
+
+            JLabel hedefDepoLabel = new JLabel("Hedef Depo:");
+            JComboBox<String> depoComboBox = new JComboBox<>();
+            for (Depo depo : sistem.getDepolar()) {
+				depoComboBox.addItem(depo.getDepoAdi());
+			}
+            
+
+            JButton kaydetButton = new JButton("Kaydet");
+
+            // === Bileşenleri Yerleştir ===
+            int row = 0;
+            gbc.gridx = 0; gbc.gridy = row;
+            siparisPenceresi.add(siparisNoLabel, gbc);
+            gbc.gridx = 1;
+            siparisPenceresi.add(siparisNoField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            siparisPenceresi.add(tedarikciLabel, gbc);
+            gbc.gridx = 1;
+            siparisPenceresi.add(tedarikciField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            siparisPenceresi.add(urunlerLabel, gbc);
+            gbc.gridx = 1;
+            siparisPenceresi.add(urunScroll, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            siparisPenceresi.add(tarihLabel, gbc);
+            gbc.gridx = 1;
+            siparisPenceresi.add(datePicker, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            siparisPenceresi.add(hedefDepoLabel, gbc);
+            gbc.gridx = 1;
+            siparisPenceresi.add(depoComboBox, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row; gbc.gridwidth = 2;
+            gbc.anchor = GridBagConstraints.CENTER;
+            siparisPenceresi.add(kaydetButton, gbc);
+
+            // === Kaydet Butonu ===
+            kaydetButton.addActionListener(evt -> {
+                try {
+                    int siparisNo = Integer.parseInt(siparisNoField.getText().trim());
+                    String tedarikci = tedarikciField.getText().trim();
+                    Object selectedDate = datePicker.getModel().getValue();
+                    String hedefDepo = (String) depoComboBox.getSelectedItem();
+
+                    if (tedarikci.isEmpty() || selectedDate == null || hedefDepo == null) {
+                        JOptionPane.showMessageDialog(siparisPenceresi, "Lütfen tüm alanları doldurun!");
+                        return;
+                    }
+
+                    LocalDate teslimTarihi = ((java.util.Date) selectedDate)
+                        .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+                    StringBuilder urunBilgileri = new StringBuilder();
+                    for (int i = 0; i < tableModel.getRowCount(); i++) {
+                        String urun = (String) tableModel.getValueAt(i, 0);
+                        int adet = (int) tableModel.getValueAt(i, 1);
+                        if (adet > 0) {
+                            urunBilgileri.append(urun).append(" (").append(adet).append("), ");
+                        }
+                    }
+
+                    if (urunBilgileri.length() == 0) {
+                        JOptionPane.showMessageDialog(siparisPenceresi, "Lütfen en az bir ürün ve adet girin.");
+                        return;
+                    }
+
+                    JOptionPane.showMessageDialog(siparisPenceresi,
+                        "Sipariş Kaydedildi!\nSipariş No: " + siparisNo +
+                        "\nTedarikçi: " + tedarikci +
+                        "\nÜrünler: " + urunBilgileri +
+                        "\nTeslim Tarihi: " + teslimTarihi +
+                        "\nHedef Depo: " + hedefDepo
+                    );
+
+                    siparisPenceresi.dispose();
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(siparisPenceresi, "Sipariş No sadece sayı olmalıdır.");
+                }
+            });
+
+            siparisPenceresi.setVisible(true);
+        });
+
+
+        
+
         
         frame.setVisible(true);
     }
