@@ -47,7 +47,7 @@ public class MagazaManager {
             }
             
             
-            if(magaza.getDepo().magazayaTedarikEt(magaza, urun, adet)){
+            if(magaza.getDepo().magazayaTedarikEt(urun, adet)){
                 gecerliSiparisler.put(urun, adet);
                 magaza.getUrunler().put(urun, adet);
             }

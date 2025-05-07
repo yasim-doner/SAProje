@@ -67,7 +67,7 @@ public class DepoSiparis {
 			System.out.println("Bu sipariş zaten teslim edildi.");
 		}else if(teslimTarihi.isBefore(LocalDate.now())) {
 			System.out.println("Teslim tarihi henüz gelmedi! (" + teslimTarihi + ")");
-		}else if(siparisAdedi > (hedefDepo.getDepoKapasitesi()-hedefDepo.getUrunMiktari())) {
+		}else if(siparisAdedi > (hedefDepo.getDepoKapasitesi()-hedefDepo.getToplamUrunMiktari())) {
 			System.out.println("Deponun kapasitesi siparis icin yeterli degil! Lutfen baska bir depo seciniz veya siparis adedinin azaltiniz!");
 			siparisIptal = true;
 		}else {
@@ -79,11 +79,14 @@ public class DepoSiparis {
 				}			
 			}
 			for(DepoUrun depoUrun : siparisUrunleri) {
-				hedefDepo.addUrun(depoUrun);
-				siparisTutari = siparisTutari + depoUrun.getUrun().netFiyat()*depoUrun.getAdet();
-			}
-			teslimEdildi = true;
-			System.out.println("Sipariş " + siparisNo + " teslim edildi ve depoya eklendi.");
+				if(hedefDepo.addUrun(depoUrun)) {
+					siparisTutari = siparisTutari + depoUrun.getUrun().netFiyat()*depoUrun.getAdet();
+					teslimEdildi = true;
+					System.out.println("Sipariş " + siparisNo + " teslim edildi ve depoya eklendi.");
+				}else {
+					siparisIptal = true;
+				}
+			}	
 		}
 	}
 	
