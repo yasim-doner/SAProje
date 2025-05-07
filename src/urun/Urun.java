@@ -52,22 +52,22 @@ public class Urun {
 				netFiyat = netFiyat*(1-kampanya.getIndirim()/100.0); // İndirimli Satış Fiyatı
 			}
 		}
-		if(marka.getMarkaAnlasmasi() != null) {
-			if(marka.getMarkaAnlasmasi().getSonTarih().isAfter(LocalDate.now())) { // Kapmpanya geçerli
-				netFiyat = netFiyat*(1-marka.getMarkaAnlasmasi().getIndirim()/100.0); // Marka Anlaşması İndirimli Satış Fiyatı
-			}
-		}
-		
 		return netFiyat; 
 	}
 	public double karHesapla() {
 		double kar;
-		kar = netFiyat() - alisFiyat; 
+		double netAlisFiyat = this.alisFiyat;
+		if(marka.getMarkaAnlasmasi() != null) {
+			if(marka.getMarkaAnlasmasi().getSonTarih().isAfter(LocalDate.now())) { // Kapmpanya geçerli
+				netAlisFiyat = this.alisFiyat*(1-marka.getMarkaAnlasmasi().getIndirim()/100.0); // Marka Anlaşması İndirimli Satış Fiyatı
+			}
+		}
+		kar = netFiyat() - netAlisFiyat; 
 		if(kampanya.getEkUrun() != null) {
 			kar -= kampanya.getEkUrun().getAlisFiyat();
 		}
 		if(marka.getMarkaAnlasmasi().getEkUrun() != null) {
-			kar -= marka.getMarkaAnlasmasi().getEkUrun().getAlisFiyat();
+			kar += marka.getMarkaAnlasmasi().getEkUrun().getAlisFiyat();
 		}
 		return kar; // birim başına kar miktarı
 	}
