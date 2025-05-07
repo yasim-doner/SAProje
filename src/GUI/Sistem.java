@@ -3,7 +3,7 @@ package GUI;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import urun.*;
-import personal.*;
+import personel.*;
 import siparisVeLojistik.*;
 import SubeIslemleri.*;
 
