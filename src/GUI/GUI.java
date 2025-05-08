@@ -35,7 +35,92 @@ public class GUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
+        frame.setLayout(new GridBagLayout());
 
+        
+        // Müşteri GUI Kısmı
+      
+        GridBagConstraints gbcMusteri = new GridBagConstraints();
+        gbcMusteri.fill = GridBagConstraints.HORIZONTAL;
+        gbcMusteri.weightx = 1.0;
+        gbcMusteri.insets = new Insets(10, 10, 10, 10);
+        gbcMusteri.anchor = GridBagConstraints.WEST;
+
+        JTextArea basketArea = new JTextArea(8, 40);
+        basketArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(basketArea);
+        
+        // Components
+        JLabel cityLabel = new JLabel("Şehir:");
+        JComboBox<String> cityBox = new JComboBox<>(new String[]{"İstanbul", "Ankara", "İzmir"});
+
+        JLabel marketLabel = new JLabel("Market:");
+        JComboBox<String> marketBox = new JComboBox<>(new String[]{"Market A", "Market B", "Market C"});
+
+        JLabel productLabel = new JLabel("Ürün:");
+        JComboBox<String> productBox = new JComboBox<>(new String[]{"Elma", "Muz", "Havuç"});
+
+        JLabel quantityLabel = new JLabel("Adet:");
+        JTextField quantityField = new JTextField(12);
+
+        JButton addToBasketBtn = new JButton("Sepete Ekle");
+        JButton buyBtn = new JButton("Satın Al");
+
+        // Add components to frame
+        gbcMusteri.gridx = 0; gbcMusteri.gridy = 0;
+        frame.add(cityLabel, gbcMusteri);
+        gbcMusteri.gridx = 1;
+        frame.add(cityBox, gbcMusteri);
+
+        gbcMusteri.gridx = 0; gbcMusteri.gridy++;
+        frame.add(marketLabel, gbcMusteri);
+        gbcMusteri.gridx = 1;
+        frame.add(marketBox, gbcMusteri);
+
+        gbcMusteri.gridx = 0; gbcMusteri.gridy++;
+        frame.add(productLabel, gbcMusteri);
+        gbcMusteri.gridx = 1;
+        frame.add(productBox, gbcMusteri);
+
+        gbcMusteri.gridx = 0; gbcMusteri.gridy++;
+        frame.add(quantityLabel, gbcMusteri);
+        gbcMusteri.gridx = 1;
+        frame.add(quantityField, gbcMusteri);
+
+        gbcMusteri.gridx = 0; gbcMusteri.gridy++;
+        frame.add(addToBasketBtn, gbcMusteri);
+        gbcMusteri.gridx = 1;
+        frame.add(buyBtn, gbcMusteri);
+
+        gbcMusteri.gridx = 0; gbcMusteri.gridy++;
+        gbcMusteri.gridwidth = 2;
+        frame.add(new JLabel("Sepet:"), gbcMusteri);
+        gbcMusteri.gridy++;
+        frame.add(scrollPane, gbcMusteri);
+
+        
+        // Add button actions
+        addToBasketBtn.addActionListener(e -> {
+        	String product = (String) productBox.getSelectedItem();
+            String quantity = quantityField.getText();
+            String market = (String) marketBox.getSelectedItem();
+            String city = (String) cityBox.getSelectedItem();
+
+            String entry = String.format("- %s x%s (%s / %s)\n", product, quantity, market, city);
+            basketArea.append(entry);
+            quantityField.setText("");
+        });
+
+        buyBtn.addActionListener(e -> {
+        	if (basketArea.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Sepet boş!", "Uyarı", JOptionPane.WARNING_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(frame, "Satın alma işlemi tamamlandı.\n\n" + basketArea.getText());
+                basketArea.setText("");
+            }
+        });
+
+        
         // Menü çubuğu
         JMenuBar menuBar = new JMenuBar();
 
@@ -57,7 +142,14 @@ public class GUI {
         JMenuItem depoEkleItem = new JMenuItem("Depo Ekle");
         JMenuItem depoSiparisItem = new JMenuItem("Depoya Urun Siparis Et");
         
+        // "Şube" alt seçenekleri
+        
+        JMenuItem magazaEkleItem = new JMenuItem("Mağaza Ekle");
 
+        // "Personel" alt seçenekleri
+        
+        JMenuItem personelEkleItem = new JMenuItem("Personel Ekle");
+        
         // "Ürün" menüsüne alt seçenekleri ekle
         urunMenu.add(urunEkleItem);
         urunMenu.add(kampanyaEkleItem);
@@ -66,6 +158,14 @@ public class GUI {
         // "Depo" menüsüne alt seçenekleri ekle
         depoMenu.add(depoEkleItem);
         depoMenu.add(depoSiparisItem);
+        
+        // Şube menüsüne alt seçenekleri ekle
+        
+        subeMenu.add(magazaEkleItem);
+        
+        // Persone menüsü alt seçenekleri ekle
+        
+        personelMenu.add(personelEkleItem);
         
         // Başlangıçta hepsi devre dışı
         urunMenu.setEnabled(false);
@@ -111,6 +211,240 @@ public class GUI {
 			@Override
 			public void menuCanceled(MenuEvent e) {}
         });
+        
+        
+        personelEkleItem.addActionListener(e -> {
+        	  JFrame pencere = new JFrame("Personel Ekle");
+        	  pencere.setSize(300, 350);
+        	  pencere.setResizable(false);
+        	  pencere.setLocationRelativeTo(frame);
+        	  pencere.setLayout(new GridBagLayout());
+
+              GridBagConstraints gbc = new GridBagConstraints();
+              gbc.fill = GridBagConstraints.HORIZONTAL;
+              gbc.weightx = 1.0;
+              gbc.insets = new Insets(10, 10, 10, 10);
+              gbc.anchor = GridBagConstraints.WEST;
+              
+              // Label ve TextField tanımlamaları
+              JLabel idLabel = new JLabel("ID:");
+              JTextField idField = new JTextField(12);
+
+              JLabel adLabel = new JLabel("Ad:");
+              JTextField adField = new JTextField(12);
+
+              JLabel soyadLabel = new JLabel("Soyad:");
+              JTextField soyadField = new JTextField(12);
+
+              JLabel gorevLabel = new JLabel("Görev:");
+              JTextField gorevField = new JTextField(12);
+
+              JLabel maasLabel = new JLabel("Maaş:");
+              JTextField maasField = new JTextField(12);
+
+              JLabel departmanLabel = new JLabel("Departman:");
+              JTextField departmanField = new JTextField(12);
+
+              JLabel terfiLabel = new JLabel("Terfi Sayısı:");
+              JTextField terfiField = new JTextField(12);
+              
+              JButton kaydetButton = new JButton("Kaydet");
+              
+              kaydetButton.addActionListener(ev -> {
+            	  int id = 0;
+            	  double maas = 0;
+            	  try {
+					id = Integer.parseInt(idField.getText());
+					maas = Double.parseDouble(maasField.getText());
+            		  
+            	  }catch (NumberFormatException ex) {
+                  	JOptionPane.showMessageDialog(pencere, "Lütfen geçerli bir sayısal değer giriniz!", "Error", JOptionPane.ERROR_MESSAGE);
+                  }
+            	  
+            	   if (adField.getText().isEmpty() || soyadField.getText().isEmpty() || gorevField.getText().isEmpty() || departmanField.getText().isEmpty()) {
+                       JOptionPane.showMessageDialog(pencere, "Lütfen tüm alanları doldurun!");
+                       return;
+                   }
+
+            	  
+            	  Personel personel = new Personel(
+            			  id, 
+            			  adField.getText(), 
+            			  soyadField.getText(), 
+            			  gorevField.getText(), 
+            			  maas, 
+            			  departmanField.getText()
+            	  );
+            	  try {
+                	  sistem.personelEkle(personel);
+                	  JOptionPane.showMessageDialog(pencere,
+                              "Personel kaydedildi:\nId:" + personel.getId() + "\nAd: " + personel.getAdSoyad() + "\nGoreb: " + personel.getGorev() +
+                                      "\nDepartman: " + personel.getDepartman() + "\nMaaş: " + personel.getMaas() + "\n Terfi Sayısı: " + personel.getTerfiSayisi());
+
+                      pencere.dispose();
+            	  } catch (DuplicateInfoException ex) {
+                  	JOptionPane.showMessageDialog(pencere, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                  }	  
+              });
+              
+              
+              // Ekleme işlemleri
+              gbc.gridx = 0; gbc.gridy = 0;
+              pencere.add(idLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(idField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(adLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(adField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(soyadLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(soyadField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(gorevLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(gorevField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(maasLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(maasField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(departmanLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(departmanField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(terfiLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(terfiField, gbc);
+              
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(kaydetButton, gbc);            
+              
+              pencere.setVisible(true);
+        });
+        
+        magazaEkleItem.addActionListener(e -> {
+        	  JFrame pencere = new JFrame("Mağaza Ekle");
+        	  pencere.setSize(300, 350);
+        	  pencere.setResizable(false);
+        	  pencere.setLocationRelativeTo(frame);
+        	  pencere.setLayout(new GridBagLayout());
+
+              GridBagConstraints gbc = new GridBagConstraints();
+              gbc.fill = GridBagConstraints.HORIZONTAL;
+              gbc.weightx = 1.0;
+              gbc.insets = new Insets(10, 10, 10, 10);
+              gbc.anchor = GridBagConstraints.WEST;
+              
+              // Label ve TextField tanımlamaları
+
+              JLabel adLabel = new JLabel("Ad:");
+              JTextField adField = new JTextField(12);
+
+              JLabel adresLabel = new JLabel("Adres:");
+              JTextField adresField = new JTextField(12);
+
+              JLabel gorevLabel = new JLabel("Görev:");
+              JTextField gorevField = new JTextField(12);
+
+              JLabel maasLabel = new JLabel("Maaş:");
+              JTextField maasField = new JTextField(12);
+
+              JLabel departmanLabel = new JLabel("Departman:");
+              JTextField departmanField = new JTextField(12);
+
+              JLabel terfiLabel = new JLabel("Terfi Sayısı:");
+              JTextField terfiField = new JTextField(12);
+              
+              JButton kaydetButton = new JButton("Kaydet");
+              
+              kaydetButton.addActionListener(ev -> {
+            	  int id = 0;
+            	  double maas = 0;
+            	  try {
+					id = Integer.parseInt(idField.getText());
+					maas = Double.parseDouble(maasField.getText());
+            		  
+            	  }catch (NumberFormatException ex) {
+                  	JOptionPane.showMessageDialog(pencere, "Lütfen geçerli bir sayısal değer giriniz!", "Error", JOptionPane.ERROR_MESSAGE);
+                  }
+            	  
+            	   if (adField.getText().isEmpty() || soyadField.getText().isEmpty() || gorevField.getText().isEmpty() || departmanField.getText().isEmpty()) {
+                       JOptionPane.showMessageDialog(pencere, "Lütfen tüm alanları doldurun!");
+                       return;
+                   }
+
+            	  
+            	  Personel personel = new Personel(
+            			  id, 
+            			  adField.getText(), 
+            			  soyadField.getText(), 
+            			  gorevField.getText(), 
+            			  maas, 
+            			  departmanField.getText()
+            	  );
+            	  try {
+                	  sistem.personelEkle(personel);
+                	  JOptionPane.showMessageDialog(pencere,
+                              "Personel kaydedildi:\nId:" + personel.getId() + "\nAd: " + personel.getAdSoyad() + "\nGoreb: " + personel.getGorev() +
+                                      "\nDepartman: " + personel.getDepartman() + "\nMaaş: " + personel.getMaas() + "\n Terfi Sayısı: " + personel.getTerfiSayisi());
+
+                      pencere.dispose();
+            	  } catch (DuplicateInfoException ex) {
+                  	JOptionPane.showMessageDialog(pencere, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                  }	  
+              });
+              
+              
+              // Ekleme işlemleri
+              gbc.gridx = 0; gbc.gridy = 0;
+              pencere.add(idLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(idField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(adLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(adField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(soyadLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(soyadField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(gorevLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(gorevField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(maasLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(maasField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(departmanLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(departmanField, gbc);
+
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(terfiLabel, gbc);
+              gbc.gridx = 1;
+              pencere.add(terfiField, gbc);
+              
+              gbc.gridx = 0; gbc.gridy++;
+              pencere.add(kaydetButton, gbc);            
+              
+              pencere.setVisible(true);
+        });
+        
         
         urunEkleItem.addActionListener(e -> {
             JFrame urunEklePenceresi = new JFrame("Ürün Ekle");

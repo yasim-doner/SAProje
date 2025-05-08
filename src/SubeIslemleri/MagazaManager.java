@@ -40,16 +40,15 @@ public class MagazaManager {
         for (Map.Entry<Urun, Integer> entry : istenenUrunler.entrySet()) {
             Urun urun = entry.getKey();
             int adet = entry.getValue();
-
-            if (!magaza.getUrunler().containsKey(urun)) {
-                System.out.println("Ürün bulunamadı: " + urun.getIsim());
-                continue; // Ürün yoksa atla
-            }
-            
             
             if(magaza.getDepo().magazayaTedarikEt(urun, adet)){
                 gecerliSiparisler.put(urun, adet);
-                magaza.getUrunler().put(urun, adet);
+                if(magaza.getUrunler().get(urun) == null) {
+                	magaza.getUrunler().put(urun, adet);
+                }
+                else {
+                    magaza.getUrunler().put(urun, magaza.getUrunler().get(urun) +  adet);
+                }
             }
         }
 

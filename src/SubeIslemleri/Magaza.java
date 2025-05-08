@@ -16,11 +16,11 @@ public class Magaza{
     private ArrayList<Personel> personelListesi;
     private Depo depo;
 
-    public Magaza(String magazaAdi, String magazaAdres, Map<Urun, Integer> urunler, ArrayList<Personel> personelListesi,Depo depo) {
+    public Magaza(String magazaAdi, String magazaAdres, Depo depo) {
         this.magazaAdi = magazaAdi;
         this.magazaAdres = magazaAdres;
-        this.urunler = urunler;
-        this.personelListesi = personelListesi;
+        this.urunler = null;
+        this.personelListesi = null;
         this.gelenMusteriSayisi = 0;
         this.ciro = 0.0;
         this.depo = depo;
