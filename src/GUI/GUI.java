@@ -51,6 +51,7 @@ public class GUI {
         // "Ürün"ün alt seçenekleri
         JMenuItem urunEkleItem = new JMenuItem("Urun Ekle");
         JMenuItem kampanyaEkleItem = new JMenuItem("Urune Kampanya Yap");
+        JMenuItem markaEkleItem = new JMenuItem("Yeni Marka Ekle");
         
         // "Depo"nun alt seçenekleri
         JMenuItem depoEkleItem = new JMenuItem("Depo Ekle");
@@ -60,6 +61,7 @@ public class GUI {
         // "Ürün" menüsüne alt seçenekleri ekle
         urunMenu.add(urunEkleItem);
         urunMenu.add(kampanyaEkleItem);
+        urunMenu.add(markaEkleItem);
         
         // "Depo" menüsüne alt seçenekleri ekle
         depoMenu.add(depoEkleItem);
@@ -112,7 +114,7 @@ public class GUI {
         
         urunEkleItem.addActionListener(e -> {
             JFrame urunEklePenceresi = new JFrame("Ürün Ekle");
-            urunEklePenceresi.setSize(300, 250);
+            urunEklePenceresi.setSize(300, 350);
             urunEklePenceresi.setResizable(false);
             urunEklePenceresi.setLocationRelativeTo(frame);
             urunEklePenceresi.setLayout(new GridBagLayout());
@@ -120,7 +122,13 @@ public class GUI {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.insets = new Insets(5, 5, 5, 5);
             gbc.anchor = GridBagConstraints.WEST;
-
+            
+            JLabel markaLabel = new JLabel("Marka:");
+            JComboBox<String> markaComboBox = new JComboBox<>();
+            for (Marka m : sistem.getMarkalar()) {
+				markaComboBox.addItem(m.getName());
+			}
+            
             JLabel barkotLabel = new JLabel("Barkot:");
             JTextField barkotField = new JTextField(12);
 
@@ -147,7 +155,17 @@ public class GUI {
             JButton kaydetButton = new JButton("Kaydet");
 
             int row = 0;
+            
+            gbc.gridx = 0; gbc.gridy = row;
+            urunEklePenceresi.add(markaLabel, gbc);
+            gbc.gridx = 1;
+            urunEklePenceresi.add(markaComboBox, gbc);
 
+            gbc.gridx = 0; gbc.gridy = ++row;
+            urunEklePenceresi.add(barkotLabel, gbc);
+            gbc.gridx = 1;
+            urunEklePenceresi.add(barkotField, gbc);
+            
             gbc.gridx = 0; gbc.gridy = row;
             urunEklePenceresi.add(barkotLabel, gbc);
             gbc.gridx = 1;
@@ -178,6 +196,9 @@ public class GUI {
 
             kaydetButton.addActionListener(evt -> {
                 try {
+                	boolean flag = false;
+                	String markaAdi = (String)markaComboBox.getSelectedItem();
+                	Marka marka = null;
                 	Integer barkot = Integer.parseInt(barkotField.getText());
                 	String isim = isimField.getText();
                 	double brut = Double.parseDouble(brutFiyatField.getText());
@@ -189,13 +210,21 @@ public class GUI {
                 	} else {
                 		LocalDate skTarihi = ((Date) selectedDate).toInstant()
                                 .atZone(ZoneId.systemDefault()).toLocalDate();
-//                		Urun yeni_urun = new Urun(barkot,isim,brut,alis,skTarihi);
-//                		sistem.urunEkle(yeni_urun);
-                		JOptionPane.showMessageDialog(urunEklePenceresi, "Ürün kaydedildi:\n" +
+                		for (Marka m : sistem.getMarkalar()) {
+							if(m.getName().equalsIgnoreCase(markaAdi)) {
+								flag = true;
+								marka = m;
+							}
+								
+						}
+                		if(flag) {
+                			Urun yeni_urun = new Urun(barkot,isim,brut,alis,skTarihi,marka);
+                			sistem.urunEkle(yeni_urun);
+                			JOptionPane.showMessageDialog(urunEklePenceresi, "Ürün kaydedildi:\n" +
                 				"Barkot: " + barkot + "\nİsim: " + isim + "\nBrüt Fiyat: " + brut +
                 				"\nAlış Fiyatı: " + alis + "\nSKT: " + skTarihi.toString());
-                	
-                		urunEklePenceresi.dispose();
+                			urunEklePenceresi.dispose();
+                		}
                 	}
                 } catch (DuplicateInfoException ex) {
                 	JOptionPane.showMessageDialog(urunEklePenceresi, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -296,6 +325,51 @@ public class GUI {
 
             kampanyaEklePenceresi.setVisible(true);
         });
+        
+        markaEkleItem.addActionListener(e -> {
+            JFrame markaEklePenceresi = new JFrame("Marka Ekle");
+            markaEklePenceresi.setSize(300, 150);
+            markaEklePenceresi.setResizable(false);
+            markaEklePenceresi.setLocationRelativeTo(null);
+            markaEklePenceresi.setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.anchor = GridBagConstraints.WEST;
+
+            JLabel markaLabel = new JLabel("Marka Adı:");
+            JTextField markaField = new JTextField(15);
+            JButton kaydetButton = new JButton("Kaydet");
+
+            gbc.gridx = 0; gbc.gridy = 0;
+            markaEklePenceresi.add(markaLabel, gbc);
+            gbc.gridx = 1;
+            markaEklePenceresi.add(markaField, gbc);
+
+            gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+            markaEklePenceresi.add(kaydetButton, gbc);
+
+            kaydetButton.addActionListener(evt -> {
+            	try {
+            		String markaAdi = markaField.getText().trim();
+            		if (markaAdi.isEmpty()) {
+                    	JOptionPane.showMessageDialog(markaEklePenceresi, "Marka adı boş olamaz!");
+                	} else {
+                    	Marka yeniMarka = new Marka(markaAdi); // Marka sınıfının constructor'ı: Marka(String ad)
+                    	sistem.markaEkle(yeniMarka);
+                    	JOptionPane.showMessageDialog(markaEklePenceresi,
+                            	"Yeni marka oluşturuldu: " + yeniMarka.getName());
+                    	markaEklePenceresi.dispose();
+                	}
+            	} catch (DuplicateInfoException ex) {
+            		JOptionPane.showMessageDialog(markaEklePenceresi, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            	}
+                
+            });
+
+            markaEklePenceresi.setVisible(true);
+        });
+
         
         depoEkleItem.addActionListener(e -> {
             JFrame depoEklePenceresi = new JFrame("Depo Ekle");
@@ -528,10 +602,6 @@ public class GUI {
             siparisPenceresi.setVisible(true);
         });
 
-
-        
-
-        
         frame.setVisible(true);
     }
 }
