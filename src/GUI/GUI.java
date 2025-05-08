@@ -3,7 +3,6 @@ package GUI;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
@@ -28,9 +27,17 @@ public class GUI {
 	
 	private static boolean yetkiAlindi = false;
 	
+	private static Sistem sistem = new Sistem();
+	
 	public static void main(String[] args) {
+				
 		
-		Sistem sistem = new Sistem();
+		final String filename = "data.dat"; 		
+		
+		if (SistemIO.loadFromFile(filename) != null) {
+			sistem = SistemIO.loadFromFile("data.dat");
+		}
+
 		// Ana pencere
 		JFrame frame = new JFrame("Uygulama Ana Penceresi");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,25 +60,26 @@ public class GUI {
         
         // Components
         JLabel cityLabel = new JLabel("Şehir:");
-        JComboBox<String> cityBox = new JComboBox<>(new String[]{"İstanbul", "Ankara", "İzmir"});
+        JTextField cityField = new JTextField(12);
 
         JLabel marketLabel = new JLabel("Market:");
-        JComboBox<String> marketBox = new JComboBox<>(new String[]{"Market A", "Market B", "Market C"});
+        JComboBox<String> marketBox = new JComboBox<>();
 
         JLabel productLabel = new JLabel("Ürün:");
-        JComboBox<String> productBox = new JComboBox<>(new String[]{"Elma", "Muz", "Havuç"});
+        JComboBox<String> productBox = new JComboBox<>();
 
         JLabel quantityLabel = new JLabel("Adet:");
         JTextField quantityField = new JTextField(12);
 
         JButton addToBasketBtn = new JButton("Sepete Ekle");
         JButton buyBtn = new JButton("Satın Al");
+        JButton refreshButton = new JButton("Yenile");
 
         // Add components to frame
         gbcMusteri.gridx = 0; gbcMusteri.gridy = 0;
         frame.add(cityLabel, gbcMusteri);
         gbcMusteri.gridx = 1;
-        frame.add(cityBox, gbcMusteri);
+        frame.add(cityField, gbcMusteri);
 
         gbcMusteri.gridx = 0; gbcMusteri.gridy++;
         frame.add(marketLabel, gbcMusteri);
@@ -92,6 +100,8 @@ public class GUI {
         frame.add(addToBasketBtn, gbcMusteri);
         gbcMusteri.gridx = 1;
         frame.add(buyBtn, gbcMusteri);
+        gbcMusteri.gridx = 2;
+        frame.add(refreshButton, gbcMusteri);
 
         gbcMusteri.gridx = 0; gbcMusteri.gridy++;
         gbcMusteri.gridwidth = 2;
@@ -101,11 +111,24 @@ public class GUI {
 
         
         // Add button actions
+        refreshButton.addActionListener(e -> {
+        	
+        	marketBox.removeAllItems();
+        	productBox.removeAllItems();
+        	
+        	for(Magaza magaza : sistem.getMagazaAtKonum(cityField.getText())) {
+        		marketBox.addItem(magaza.getMagazaAdi());
+        		for(Urun urun : magaza.getUrunler().keySet()) {
+        			productBox.addItem(urun.getIsim());
+        		}
+        	}
+        });
+        
         addToBasketBtn.addActionListener(e -> {
         	String product = (String) productBox.getSelectedItem();
             String quantity = quantityField.getText();
             String market = (String) marketBox.getSelectedItem();
-            String city = (String) cityBox.getSelectedItem();
+            String city = cityField.getText();
 
             String entry = String.format("- %s x%s (%s / %s)\n", product, quantity, market, city);
             basketArea.append(entry);
@@ -133,6 +156,7 @@ public class GUI {
         JMenu subeMenu = new JMenu("Sube Islemleri");
         JMenu personelMenu = new JMenu("Personel Islemleri");
         JMenu depoMenu = new JMenu("Depo Islemleri");
+        JMenu sistemMenu = new JMenu("Kaydet/Yükle");
 
         // "Ürün"ün alt seçenekleri
         JMenuItem urunEkleItem = new JMenuItem("Urun Ekle");
@@ -151,6 +175,11 @@ public class GUI {
         
         JMenuItem personelEkleItem = new JMenuItem("Personel Ekle");
         
+        // "sistem" alt seçenekleri
+        
+        JMenuItem kaydetItem = new JMenuItem("Kaydet");
+        JMenuItem yukleItem = new JMenuItem("Yükle");
+        
         // "Ürün" menüsüne alt seçenekleri ekle
         urunMenu.add(urunEkleItem);
         urunMenu.add(kampanyaEkleItem);
@@ -168,17 +197,24 @@ public class GUI {
         
         personelMenu.add(personelEkleItem);
         
+        // Sistem menüsü alt seçenekleri
+        
+        sistemMenu.add(kaydetItem);
+        sistemMenu.add(yukleItem);
+        
         // Başlangıçta hepsi devre dışı
         urunMenu.setEnabled(false);
         subeMenu.setEnabled(false);
         personelMenu.setEnabled(false);
         depoMenu.setEnabled(false);
+        sistemMenu.setEnabled(false);
 
         // "Manage" menüsüne "Ürün" (alt menülü) ve "Şube"yi ekle
         manageMenu.add(urunMenu);
         manageMenu.add(subeMenu);
         manageMenu.add(personelMenu);
         manageMenu.add(depoMenu);
+        manageMenu.add(sistemMenu);
 
         // Menü çubuğuna "Manage"i ekle
         menuBar.add(manageMenu);
@@ -198,6 +234,7 @@ public class GUI {
                         subeMenu.setEnabled(true);
                         personelMenu.setEnabled(true);
                         depoMenu.setEnabled(true);
+                        sistemMenu.setEnabled(true);
                     } else {
                         JOptionPane.showMessageDialog(frame, "Hatalı şifre!");
                         // Menüyü kapatS
@@ -211,6 +248,14 @@ public class GUI {
 
 			@Override
 			public void menuCanceled(MenuEvent e) {}
+        });
+        
+        
+        kaydetItem.addActionListener(e -> {
+        	SistemIO.saveToFile(sistem, filename);
+        });
+        yukleItem.addActionListener(e -> {
+        	sistem = SistemIO.loadFromFile(filename);
         });
         
         
@@ -352,7 +397,7 @@ public class GUI {
               JLabel adresLabel = new JLabel("Adres:");
               JTextField adresField = new JTextField(12);
 
-              JLabel depoLabel = new JLabel("Görev:");
+              JLabel depoLabel = new JLabel("Depo:");
               JComboBox<String> depoComboBox = new JComboBox<>();
               for (Depo depo : sistem.getDepolar()) {
   				depoComboBox.addItem(depo.getDepoAdi());
@@ -367,12 +412,16 @@ public class GUI {
                        return;
                   }
  
-            	  Magaza magaza = new Magaza(adField.getText(), adresField.getText(), (Depo) depoComboBox.getSelectedItem()); 
+            	  Magaza magaza = new Magaza(
+            			  adField.getText(), 
+            			  adresField.getText(), 
+            			  sistem.getDepobyName((String)depoComboBox.getSelectedItem())
+            			 ); 
             
             	  try {
                 	  sistem.magazaEkle(magaza);
                 	  JOptionPane.showMessageDialog(pencere,
-                              "Personel kaydedildi:\nAd:" + magaza.getMagazaAdi() + "\nAdres: " + magaza.getMagazaAdres() + "\nDepo Adı: " + magaza.getDepo().getDepoAdi());
+                              "Mağaza kaydedildi:\nAd:" + magaza.getMagazaAdi() + "\nAdres: " + magaza.getMagazaAdres() + "\nDepo Adı: " + magaza.getDepo().getDepoAdi());
                       pencere.dispose();
             	  } catch (DuplicateInfoException ex) {
                   	JOptionPane.showMessageDialog(pencere, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

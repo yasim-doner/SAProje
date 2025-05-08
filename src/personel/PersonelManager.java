@@ -1,9 +1,14 @@
 package personel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PersonelManager {
-    private ArrayList<Personel> personelListesi;
+public class PersonelManager implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1626902419497724621L;
+	private ArrayList<Personel> personelListesi;
 
     public PersonelManager() {
         this.personelListesi = new ArrayList<>();

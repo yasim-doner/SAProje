@@ -1,9 +1,14 @@
 package siparisVeLojistik;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import urun.*;
 
-public class Depo {
+public class Depo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String depoKonumu;
 	private String depoAdi;
 	private ArrayList<DepoUrun> urunler;

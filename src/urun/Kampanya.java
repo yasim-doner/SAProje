@@ -1,8 +1,13 @@
 package urun;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Kampanya {
+public class Kampanya implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4705247702450853611L;
 	private int indirim;
 	private Urun ekUrun;
 	private LocalDate sonTarih;

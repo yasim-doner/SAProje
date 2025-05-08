@@ -3,13 +3,19 @@ package SubeIslemleri;
 
 import personel.Personel;
 import urun.Urun;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 
 
-public class MagazaManager {
-    private Magaza magaza;
+public class MagazaManager implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8719398894986169384L;
+	private Magaza magaza;
 
     public MagazaManager(Magaza magaza) {
         this.magaza = magaza;

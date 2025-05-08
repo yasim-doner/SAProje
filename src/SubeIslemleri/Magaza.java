@@ -3,12 +3,19 @@ package SubeIslemleri;
 
 import personel.Personel;
 import urun.Urun;
+
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import siparisVeLojistik.Depo;
 
-public class Magaza{
-    private String magazaAdi;
+public class Magaza implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -301510756270989860L;
+	private String magazaAdi;
     private String magazaAdres;
     private int gelenMusteriSayisi;
     private double ciro;
@@ -19,8 +26,8 @@ public class Magaza{
     public Magaza(String magazaAdi, String magazaAdres, Depo depo) {
         this.magazaAdi = magazaAdi;
         this.magazaAdres = magazaAdres;
-        this.urunler = null;
-        this.personelListesi = null;
+        this.urunler = new HashMap<>();
+        this.personelListesi = new ArrayList<>();
         this.gelenMusteriSayisi = 0;
         this.ciro = 0.0;
         this.depo = depo;

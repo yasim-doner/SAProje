@@ -1,7 +1,13 @@
 package personel;
 
-public class Personel {
-    private int id;
+import java.io.Serializable;
+
+public class Personel implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 563537244524041688L;
+	private int id;
     private String ad;
     private String soyad;
     private String gorev;
