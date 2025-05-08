@@ -661,6 +661,7 @@ public class GUI {
             markaEklePenceresi.setVisible(true);
         });
 
+
         
         depoEkleItem.addActionListener(e -> {
             JFrame depoEklePenceresi = new JFrame("Depo Ekle");
@@ -874,7 +875,7 @@ public class GUI {
                         JOptionPane.showMessageDialog(siparisPenceresi, "Lütfen en az bir ürün ve adet girin.");
                         return;
                     }
-
+                    
                     JOptionPane.showMessageDialog(siparisPenceresi,
                         "Sipariş Kaydedildi!\nSipariş No: " + siparisNo +
                         "\nTedarikçi: " + tedarikci +

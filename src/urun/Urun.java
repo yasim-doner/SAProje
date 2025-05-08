@@ -97,5 +97,4 @@ public class Urun {
 		}
 		return fiyatRes;
 	}
-	
 }
