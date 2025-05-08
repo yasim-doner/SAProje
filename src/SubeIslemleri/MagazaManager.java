@@ -104,4 +104,21 @@ public class MagazaManager {
 
         System.out.println("Güncel ciro: " + magaza.getCiro() + " TL");
     }
+    public void personelEkle(Personel personel){
+        if(magaza.getPersonelListesi().contains(personel)){
+            System.out.println("Personel Zaten Mevcut");
+            return;
+        }
+        magaza.getPersonelListesi().add(personel);
+    }
+    public void personelCıkar(Personel personel){
+        for(Personel e :magaza.getPersonelListesi()){
+            if(e == personel){
+                magaza.getPersonelListesi().remove(e);
+            }
+            else{
+                System.err.println("Personel Bulunamadı");
+            }
+        }
+    }
 }
