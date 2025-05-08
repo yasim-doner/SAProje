@@ -100,4 +100,6 @@ public class Urun implements Serializable {
 		}
 		return fiyatRes;
 	}
+	
+	public String toString() {return isim;}
 }

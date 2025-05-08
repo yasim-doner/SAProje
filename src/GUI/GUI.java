@@ -3,7 +3,10 @@ package GUI;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.*;
@@ -170,6 +173,7 @@ public class GUI {
         // "Şube" alt seçenekleri
         
         JMenuItem magazaEkleItem = new JMenuItem("Mağaza Ekle");
+        JMenuItem magazayaUrunTedarikEtItem = new JMenuItem("Mağazaya Ürün Tedarik Et");
 
         // "Personel" alt seçenekleri
         
@@ -192,6 +196,7 @@ public class GUI {
         // Şube menüsüne alt seçenekleri ekle
         
         subeMenu.add(magazaEkleItem);
+        subeMenu.add(magazayaUrunTedarikEtItem);
         
         // Persone menüsü alt seçenekleri ekle
         
@@ -710,7 +715,107 @@ public class GUI {
             markaEklePenceresi.setVisible(true);
         });
 
+        magazayaUrunTedarikEtItem.addActionListener(e -> {
+            JFrame tedarikPenceresi = new JFrame("Mağazaya Ürün Tedarik Et");
+            tedarikPenceresi.setSize(400, 250);
+            tedarikPenceresi.setResizable(false);
+            tedarikPenceresi.setLocationRelativeTo(null);
+            tedarikPenceresi.setLayout(new GridBagLayout());
 
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.anchor = GridBagConstraints.WEST;
+
+
+            JLabel magazaLabel = new JLabel("Mağaza:");
+            JComboBox<String> magazaCombo = new JComboBox<>();
+            for (Magaza m : sistem.getMagazalar()) {
+    			magazaCombo.addItem(m.getMagazaAdi());
+    		}
+
+            JLabel urunLabel = new JLabel("Ürün:");
+            JComboBox<String> urunCombo = new JComboBox<>();
+            for (Urun urun : sistem.getUrunler()) {
+    			urunCombo.addItem(urun.getIsim());
+    		}
+
+            JLabel miktarLabel = new JLabel("Miktar:");
+            JTextField miktarField = new JTextField(10);
+
+            JButton tedarikButton = new JButton("Tedarik Et");
+
+            int row = 0;
+
+            gbc.gridx = 0; gbc.gridy = row;
+            tedarikPenceresi.add(magazaLabel, gbc);
+            gbc.gridx = 1;
+            tedarikPenceresi.add(magazaCombo, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            tedarikPenceresi.add(urunLabel, gbc);
+            gbc.gridx = 1;
+            tedarikPenceresi.add(urunCombo, gbc);
+
+            gbc.gridx = 0; gbc.gridy = ++row;
+            tedarikPenceresi.add(miktarLabel, gbc);
+            gbc.gridx = 1;
+            tedarikPenceresi.add(miktarField, gbc);
+
+
+            gbc.gridx = 0; gbc.gridy = ++row; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+            tedarikPenceresi.add(tedarikButton, gbc);
+
+            tedarikButton.addActionListener(evt -> {
+                try {
+                    String magazaAdi = (String) magazaCombo.getSelectedItem();
+                    String urunAdi = (String) urunCombo.getSelectedItem();
+                    int miktar = Integer.parseInt(miktarField.getText().trim());
+
+                    if (miktar <= 0) {
+                        JOptionPane.showMessageDialog(tedarikPenceresi, "Miktar pozitif olmalıdır!");
+                        return;
+                    }
+
+                    // === Nesneleri sistemden bul (örnek olarak listelerden seçiyoruz) ===
+                    Magaza seciliMagaza = null;
+                    Urun seciliUrun = null;
+                    
+                    for (Magaza m : sistem.getMagazalar()) {
+    					if(m.getMagazaAdi().equalsIgnoreCase(magazaAdi)) {
+    						seciliMagaza = m;
+    					}
+    				}
+                       
+                    for (Urun urun : sistem.getUrunler()) {
+    					if(urun.getIsim().equalsIgnoreCase(urunAdi)) {
+    						seciliUrun = urun;
+    					}
+    				}
+
+                    if (seciliMagaza == null || seciliUrun == null) {
+                        JOptionPane.showMessageDialog(tedarikPenceresi, "Geçersiz seçim yapıldı.");
+                        return;
+                    }
+                    
+                    MagazaManager magazaManager = new MagazaManager(seciliMagaza);
+
+                    // === Sipariş listesi oluştur ===
+                    Map<Urun, Integer> siparisMap = new HashMap<>();
+                    siparisMap.put(seciliUrun, miktar);
+
+                    // === Sipariş oluştur ===
+                    magazaManager.siparisOlustur(siparisMap);  
+
+                    JOptionPane.showMessageDialog(tedarikPenceresi, "Sipariş başarıyla işlendi.");
+                    tedarikPenceresi.dispose();
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(tedarikPenceresi, "Lütfen geçerli bir sayı girin!", "Hata", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            
+            tedarikPenceresi.setVisible(true);
+        });
         
         depoEkleItem.addActionListener(e -> {
             JFrame depoEklePenceresi = new JFrame("Depo Ekle");
@@ -812,8 +917,12 @@ public class GUI {
             JLabel siparisNoLabel = new JLabel("Sipariş No:");
             JTextField siparisNoField = new JTextField(10);
 
-            JLabel tedarikciLabel = new JLabel("Tedarikçi Adı:");
-            JTextField tedarikciField = new JTextField(12);
+            JLabel tedarikciLabel = new JLabel("Tedarikçi:");
+            ArrayList<String> tedarikciler = new ArrayList<>();
+            JComboBox<String> tedarikciCombo = new JComboBox<>();
+            for (Marka marka : sistem.getMarkalar()) {
+                tedarikciCombo.addItem(marka.getName());
+            }
 
             JLabel urunlerLabel = new JLabel("Sipariş Ürünleri:");
 
@@ -874,7 +983,7 @@ public class GUI {
             gbc.gridx = 0; gbc.gridy = ++row;
             siparisPenceresi.add(tedarikciLabel, gbc);
             gbc.gridx = 1;
-            siparisPenceresi.add(tedarikciField, gbc);
+            siparisPenceresi.add(tedarikciCombo, gbc);
 
             gbc.gridx = 0; gbc.gridy = ++row;
             siparisPenceresi.add(urunlerLabel, gbc);
@@ -899,7 +1008,7 @@ public class GUI {
             kaydetButton.addActionListener(evt -> {
                 try {
                     int siparisNo = Integer.parseInt(siparisNoField.getText().trim());
-                    String tedarikci = tedarikciField.getText().trim();
+                    String tedarikci = (String) tedarikciCombo.getSelectedItem();
                     Object selectedDate = datePicker.getModel().getValue();
                     String hedefDepo = (String) depoComboBox.getSelectedItem();
 
@@ -907,18 +1016,24 @@ public class GUI {
                         JOptionPane.showMessageDialog(siparisPenceresi, "Lütfen tüm alanları doldurun!");
                         return;
                     }
-
+                    
                     LocalDate teslimTarihi = ((java.util.Date) selectedDate)
                         .toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
+                    
+                    ArrayList<DepoUrun> urunler = new ArrayList<>();
+                    
                     StringBuilder urunBilgileri = new StringBuilder();
                     for (int i = 0; i < tableModel.getRowCount(); i++) {
-                        String urun = (String) tableModel.getValueAt(i, 0);
+                        Urun urun = (Urun) tableModel.getValueAt(i, 0);
                         int adet = (int) tableModel.getValueAt(i, 1);
+                        
                         if (adet > 0) {
+                        	DepoUrun depoUrun = new DepoUrun(urun, adet);
+                        	urunler.add(depoUrun);
                             urunBilgileri.append(urun).append(" (").append(adet).append("), ");
                         }
                     }
+                    
 
                     if (urunBilgileri.length() == 0) {
                         JOptionPane.showMessageDialog(siparisPenceresi, "Lütfen en az bir ürün ve adet girin.");
@@ -932,7 +1047,12 @@ public class GUI {
                         "\nTeslim Tarihi: " + teslimTarihi +
                         "\nHedef Depo: " + hedefDepo
                     );
-
+                    
+                    Depo hDepo = sistem.getDepobyName(hedefDepo);
+                    
+                    DepoSiparis siparis = new DepoSiparis(siparisNo,tedarikci,urunler,teslimTarihi,hDepo);
+                    siparis.teslimEt();
+                    
                     siparisPenceresi.dispose();
 
                 } catch (NumberFormatException ex) {
