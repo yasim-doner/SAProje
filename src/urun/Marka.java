@@ -1,11 +1,16 @@
 package urun;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import SubeIslemleri.Magaza;
 
-public class Marka {
+public class Marka implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -625087074920827276L;
 	private String name;
 	private Kampanya markaAnlasmasi;
 	

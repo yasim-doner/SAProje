@@ -1,10 +1,16 @@
 package SubeIslemleri;
 import urun.Urun;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Musteri {
-    private Map<Urun, Integer> sepet;
+public class Musteri implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5660656872626941504L;
+	private Map<Urun, Integer> sepet;
 
     public Musteri() {
         this.sepet = new HashMap<>();

@@ -1,10 +1,13 @@
 package urun;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class Urun {
+public class Urun implements Serializable {
+
+	private static final long serialVersionUID = -8950281176500492074L;
 	private int barkod;
 	private String isim;
 	private double brutFiyat;

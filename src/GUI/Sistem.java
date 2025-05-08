@@ -1,5 +1,6 @@
 package GUI;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import urun.*;
@@ -8,7 +9,10 @@ import siparisVeLojistik.*;
 import SubeIslemleri.*;
 
 
-public class Sistem {
+public class Sistem implements Serializable {
+	
+    private static final long serialVersionUID = 1L;
+
 	private ArrayList<Urun> urunler;
 	private ArrayList<Depo> depolar;
 	private ArrayList<Marka> markalar;
@@ -72,6 +76,22 @@ public class Sistem {
 				throw new DuplicateInfoException("İşlem başarısız. Girdiğiniz personel zaten sistemimizde bulunmakta.");
 		}
 		personeller.add(personel);
+	}
+	public ArrayList<Magaza> getMagazaAtKonum(String konum) {
+		ArrayList<Magaza> konumMagaza = new ArrayList<>();
+		for(Magaza m : magazalar) {
+			if(m.getMagazaAdres().equals(konum) || konum.equals("")) {
+				konumMagaza.add(m);
+			}
+		}
+		return konumMagaza;
+	}
+	
+	public Depo getDepobyName(String name) {
+		for (Depo depo : depolar) {
+			if(depo.getDepoAdi().equals(name)) return depo;
+		}
+		return null;
 	}
 	
 }
