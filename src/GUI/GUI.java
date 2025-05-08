@@ -3,6 +3,7 @@ package GUI;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
@@ -351,51 +352,27 @@ public class GUI {
               JLabel adresLabel = new JLabel("Adres:");
               JTextField adresField = new JTextField(12);
 
-              JLabel gorevLabel = new JLabel("Görev:");
-              JTextField gorevField = new JTextField(12);
-
-              JLabel maasLabel = new JLabel("Maaş:");
-              JTextField maasField = new JTextField(12);
-
-              JLabel departmanLabel = new JLabel("Departman:");
-              JTextField departmanField = new JTextField(12);
-
-              JLabel terfiLabel = new JLabel("Terfi Sayısı:");
-              JTextField terfiField = new JTextField(12);
-              
+              JLabel depoLabel = new JLabel("Görev:");
+              JComboBox<String> depoComboBox = new JComboBox<>();
+              for (Depo depo : sistem.getDepolar()) {
+  				depoComboBox.addItem(depo.getDepoAdi());
+  			  }
+  
               JButton kaydetButton = new JButton("Kaydet");
               
               kaydetButton.addActionListener(ev -> {
-            	  int id = 0;
-            	  double maas = 0;
-            	  try {
-					id = Integer.parseInt(idField.getText());
-					maas = Double.parseDouble(maasField.getText());
-            		  
-            	  }catch (NumberFormatException ex) {
-                  	JOptionPane.showMessageDialog(pencere, "Lütfen geçerli bir sayısal değer giriniz!", "Error", JOptionPane.ERROR_MESSAGE);
-                  }
             	  
-            	   if (adField.getText().isEmpty() || soyadField.getText().isEmpty() || gorevField.getText().isEmpty() || departmanField.getText().isEmpty()) {
+            	  if (adField.getText().isEmpty() || adresField.getText().isEmpty()) {
                        JOptionPane.showMessageDialog(pencere, "Lütfen tüm alanları doldurun!");
                        return;
-                   }
-
-            	  
-            	  Personel personel = new Personel(
-            			  id, 
-            			  adField.getText(), 
-            			  soyadField.getText(), 
-            			  gorevField.getText(), 
-            			  maas, 
-            			  departmanField.getText()
-            	  );
+                  }
+ 
+            	  Magaza magaza = new Magaza(adField.getText(), adresField.getText(), (Depo) depoComboBox.getSelectedItem()); 
+            
             	  try {
-                	  sistem.personelEkle(personel);
+                	  sistem.magazaEkle(magaza);
                 	  JOptionPane.showMessageDialog(pencere,
-                              "Personel kaydedildi:\nId:" + personel.getId() + "\nAd: " + personel.getAdSoyad() + "\nGoreb: " + personel.getGorev() +
-                                      "\nDepartman: " + personel.getDepartman() + "\nMaaş: " + personel.getMaas() + "\n Terfi Sayısı: " + personel.getTerfiSayisi());
-
+                              "Personel kaydedildi:\nAd:" + magaza.getMagazaAdi() + "\nAdres: " + magaza.getMagazaAdres() + "\nDepo Adı: " + magaza.getDepo().getDepoAdi());
                       pencere.dispose();
             	  } catch (DuplicateInfoException ex) {
                   	JOptionPane.showMessageDialog(pencere, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -405,40 +382,20 @@ public class GUI {
               
               // Ekleme işlemleri
               gbc.gridx = 0; gbc.gridy = 0;
-              pencere.add(idLabel, gbc);
-              gbc.gridx = 1;
-              pencere.add(idField, gbc);
-
-              gbc.gridx = 0; gbc.gridy++;
               pencere.add(adLabel, gbc);
               gbc.gridx = 1;
               pencere.add(adField, gbc);
 
               gbc.gridx = 0; gbc.gridy++;
-              pencere.add(soyadLabel, gbc);
+              pencere.add(adresLabel, gbc);
               gbc.gridx = 1;
-              pencere.add(soyadField, gbc);
+              pencere.add(adresField, gbc);
 
               gbc.gridx = 0; gbc.gridy++;
-              pencere.add(gorevLabel, gbc);
+              pencere.add(depoLabel, gbc);
               gbc.gridx = 1;
-              pencere.add(gorevField, gbc);
+              pencere.add(depoComboBox, gbc);
 
-              gbc.gridx = 0; gbc.gridy++;
-              pencere.add(maasLabel, gbc);
-              gbc.gridx = 1;
-              pencere.add(maasField, gbc);
-
-              gbc.gridx = 0; gbc.gridy++;
-              pencere.add(departmanLabel, gbc);
-              gbc.gridx = 1;
-              pencere.add(departmanField, gbc);
-
-              gbc.gridx = 0; gbc.gridy++;
-              pencere.add(terfiLabel, gbc);
-              gbc.gridx = 1;
-              pencere.add(terfiField, gbc);
-              
               gbc.gridx = 0; gbc.gridy++;
               pencere.add(kaydetButton, gbc);            
               
