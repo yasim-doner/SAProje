@@ -203,6 +203,10 @@ public class GUI {
         JMenuItem kaydetItem = new JMenuItem("Kaydet");
         JMenuItem yukleItem = new JMenuItem("Yükle");
         
+        // "Çıkış yap menu İtem"
+        
+        JMenuItem cikisItem = new JMenuItem("Çıkış");
+        
         // "Ürün" menüsüne alt seçenekleri ekle
         urunMenu.add(urunEkleItem);
         urunMenu.add(kampanyaEkleItem);
@@ -245,6 +249,7 @@ public class GUI {
         manageMenu.add(personelMenu);
         manageMenu.add(depoMenu);
         manageMenu.add(sistemMenu);
+        manageMenu.add(cikisItem);
 
         // Menü çubuğuna "Manage"i ekle
         menuBar.add(manageMenu);
@@ -257,17 +262,30 @@ public class GUI {
             @Override
             public void menuSelected(MenuEvent e) {
                 if (!yetkiAlindi) {
-                    String girilenSifre = "1234"; //JOptionPane.showInputDialog(frame, "Şifreyi giriniz:");
-                    if ("1234".equals(girilenSifre)) { // Şifre buradan kontrol edilir
-                        yetkiAlindi = true;
+                    String girilenSifre = JOptionPane.showInputDialog(frame, "Şifreyi giriniz:");
+                    switch (girilenSifre){
+					case "1111": 
                         urunMenu.setEnabled(true);
+                        sistemMenu.setEnabled(true);
+                        yetkiAlindi = true;
+                        break;
+					case "2222": 
                         subeMenu.setEnabled(true);
+                        sistemMenu.setEnabled(true);
+                        yetkiAlindi = true;
+                        break;
+					case "3333":
                         personelMenu.setEnabled(true);
+                        sistemMenu.setEnabled(true);
+                        yetkiAlindi = true;
+                        break;
+					case "4444":
                         depoMenu.setEnabled(true);
                         sistemMenu.setEnabled(true);
-                    } else {
+                        yetkiAlindi = true;
+                        break;
+					default:
                         JOptionPane.showMessageDialog(frame, "Hatalı şifre!");
-                        // Menüyü kapatS
                         manageMenu.setPopupMenuVisible(false);
                     }
                 }
@@ -280,9 +298,117 @@ public class GUI {
 			public void menuCanceled(MenuEvent e) {}
         });
         
+        cikisItem.addActionListener(e -> {
+        	yetkiAlindi = false;
+            urunMenu.setEnabled(false);
+            subeMenu.setEnabled(false);
+            personelMenu.setEnabled(false);
+            depoMenu.setEnabled(false);
+            sistemMenu.setEnabled(false);
+        });
+        
+        
+        magazaDuzenleItem.addActionListener(e ->{
+        	JFrame pencere = new JFrame("Mağaza Düzenle");
+        	pencere.setSize(500, 600);  // Increased size to fit table
+        	pencere.setResizable(false);
+        	pencere.setLocationRelativeTo(frame);
+        	pencere.setLayout(new GridBagLayout());
+
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.HORIZONTAL;
+        	gbc.insets = new Insets(5, 10, 5, 10);
+        	gbc.anchor = GridBagConstraints.WEST;
+
+        	
+        	JButton personelEkleButton = new JButton("Ekle");
+        	JButton personelSilButton = new JButton("Sil");
+        	
+        	// Row 0: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 0;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Mağaza Seç:"), gbc);
+        	
+        	JComboBox<String> comboBox = new JComboBox<>();
+            for (Magaza m : sistem.getMagazalar()) {
+				comboBox.addItem(m.getMagazaAdi());
+			}
+            
+            gbc.gridx = 1;
+        	pencere.add(comboBox, gbc);
+        	
+            
+            // Row 1: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 1;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Personel Ekle:"), gbc);
+        	
+        	JComboBox<String> comboBox1 = new JComboBox<>();
+        	for (Personel p : sistem.getPersonelManager().getPersonelListesi()) {
+				comboBox1.addItem(p.getAdSoyad());
+			}
+        	
+            gbc.gridx = 1;
+        	pencere.add(comboBox1, gbc);
+        	gbc.gridx = 2;
+        	pencere.add(personelEkleButton, gbc);
+        	
+        	// Row 2: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 2;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Personel Sil:"), gbc);
+        	
+        	JComboBox<String> comboBox2 = new JComboBox<>();
+        	for (Personel p : sistem.getMagazabyName((String) comboBox.getSelectedItem()).getPersonelListesi()) {
+				comboBox2.addItem(p.getAdSoyad());
+			}
+        	
+            gbc.gridx = 1;
+        	pencere.add(comboBox2, gbc);
+        	gbc.gridx = 2;
+        	pencere.add(personelSilButton, gbc);
+            
+        	
+        	comboBox.addActionListener(ev -> {
+        		comboBox2.removeAllItems();
+        		for (Personel p : sistem.getMagazabyName((String) comboBox.getSelectedItem()).getPersonelListesi()) {
+    				comboBox2.addItem(p.getAdSoyad());
+    			}
+        	});
+        	
+        	personelEkleButton.addActionListener(ev -> {
+        		Personel selectedPersonel = sistem.getPersonelbyName((String) comboBox1.getSelectedItem());
+        		Magaza selectedMagaza = sistem.getMagazabyName((String) comboBox.getSelectedItem());
+        		
+        		MagazaManager manager = new MagazaManager(selectedMagaza);
+        		
+        		manager.personelEkle(selectedPersonel);
+        		
+        		pencere.dispose();
+        	});
+        	
+        	personelSilButton.addActionListener(ev -> {
+        		Personel selectedPersonel = sistem.getPersonelbyName((String) comboBox1.getSelectedItem());
+        		Magaza selectedMagaza = sistem.getMagazabyName((String) comboBox.getSelectedItem());
+        		
+        		MagazaManager manager = new MagazaManager(selectedMagaza);
+        		
+        		manager.personelEkle(selectedPersonel);
+
+        		pencere.dispose();
+        	});
+        	
+        	pencere.setVisible(true);
+        	
+        });
+                
+        
         personelDuzenleItem.addActionListener(e -> {
         	
-        	JFrame pencere = new JFrame("Personel İncele");
+        	JFrame pencere = new JFrame("Personel Düzenle");
         	pencere.setSize(500, 600);  // Increased size to fit table
         	pencere.setResizable(false);
         	pencere.setLocationRelativeTo(frame);
