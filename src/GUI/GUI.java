@@ -1345,11 +1345,6 @@ public class GUI {
             siparisPenceresi.add(siparisNoField, gbc);
 
             gbc.gridx = 0; gbc.gridy = ++row;
-            siparisPenceresi.add(tedarikciLabel, gbc);
-            gbc.gridx = 1;
-            siparisPenceresi.add(tedarikciCombo, gbc);
-
-            gbc.gridx = 0; gbc.gridy = ++row;
             siparisPenceresi.add(urunlerLabel, gbc);
             gbc.gridx = 1;
             siparisPenceresi.add(urunScroll, gbc);
@@ -1372,11 +1367,10 @@ public class GUI {
             kaydetButton.addActionListener(evt -> {
                 try {
                     int siparisNo = Integer.parseInt(siparisNoField.getText().trim());
-                    String tedarikci = (String) tedarikciCombo.getSelectedItem();
                     Object selectedDate = datePicker.getModel().getValue();
                     String hedefDepo = (String) depoComboBox.getSelectedItem();
 
-                    if (tedarikci.isEmpty() || selectedDate == null || hedefDepo == null) {
+                    if (selectedDate == null || hedefDepo == null) {
                         JOptionPane.showMessageDialog(siparisPenceresi, "Lütfen tüm alanları doldurun!");
                         return;
                     }
@@ -1406,7 +1400,6 @@ public class GUI {
                     
                     JOptionPane.showMessageDialog(siparisPenceresi,
                         "Sipariş Kaydedildi!\nSipariş No: " + siparisNo +
-                        "\nTedarikçi: " + tedarikci +
                         "\nÜrünler: " + urunBilgileri +
                         "\nTeslim Tarihi: " + teslimTarihi +
                         "\nHedef Depo: " + hedefDepo
@@ -1414,7 +1407,7 @@ public class GUI {
                     
                     Depo hDepo = sistem.getDepobyName(hedefDepo);
                     
-                    DepoSiparis siparis = new DepoSiparis(siparisNo,tedarikci,urunler,teslimTarihi,hDepo);
+                    DepoSiparis siparis = new DepoSiparis(siparisNo,urunler,teslimTarihi,hDepo);
                     siparis.teslimEt();
                     
                     siparisPenceresi.dispose();
