@@ -7,7 +7,6 @@ public class DepoSiparis {
 	private int siparisNo;
 	private int siparisAdedi;
 	private double siparisTutari;
-	private String tedarikciAdi;
 	private ArrayList<DepoUrun> siparisUrunleri;
 	private LocalDate siparisTarihi;
 	private LocalDate teslimTarihi;
@@ -15,12 +14,11 @@ public class DepoSiparis {
 	private boolean siparisIptal;
 	private Depo hedefDepo;
 	
-	public DepoSiparis(int siparisNo, String tedarikciAdi, ArrayList<DepoUrun> siparisUrunleri,LocalDate teslimTarihi, Depo hedefDepo) {
+	public DepoSiparis(int siparisNo, ArrayList<DepoUrun> siparisUrunleri,LocalDate teslimTarihi, Depo hedefDepo) {
 		super();
 		this.siparisNo = siparisNo;
 		this.siparisTutari = 0;
 		this.siparisAdedi = 0;
-		this.tedarikciAdi = tedarikciAdi;
 		this.siparisUrunleri = siparisUrunleri;
 		this.siparisTarihi = LocalDate.now();
 		this.teslimTarihi = teslimTarihi;
@@ -47,8 +45,6 @@ public class DepoSiparis {
 			siparisAdedi = siparisAdedi + depoUrun.getAdet();
 		}
 	}
-
-	public String getTedarikciAdi() {return tedarikciAdi;}
 
 	public LocalDate getSiparisTarihi() {return siparisTarihi;}
 
@@ -104,7 +100,6 @@ public class DepoSiparis {
 	public void listSiparisBilgileri() {
 		System.out.println();
 		System.out.println("Siparis No: " + siparisNo);
-		System.out.println("Tedarikci Adi: " + tedarikciAdi);
 		System.out.println("Siparis Tarihi: " + siparisTarihi);
 		System.out.println("Teslim Tarihi: " + teslimTarihi);
 		System.out.println("Teslim Edildi mi: " + (teslimEdildi ? "Evet" : "Hayır"));
