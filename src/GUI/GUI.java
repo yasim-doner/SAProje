@@ -171,6 +171,7 @@ public class GUI {
         JMenu personelMenu = new JMenu("Personel Islemleri");
         JMenu depoMenu = new JMenu("Depo Islemleri");
         JMenu sistemMenu = new JMenu("Kaydet/Yükle");
+        JMenu yoneticiMenu = new JMenu("Ekleme İşlemleri");
 
         // "Ürün"ün alt seçenekleri
         JMenuItem urunEkleItem = new JMenuItem("Urun Ekle");
@@ -214,13 +215,11 @@ public class GUI {
         urunMenu.add(urunGoruntuleItem);
         
         // "Depo" menüsüne alt seçenekleri ekle
-        depoMenu.add(depoEkleItem);
         depoMenu.add(depoSiparisItem);
         depoMenu.add(depoGoruntuleItem);
         
         // Şube menüsüne alt seçenekleri ekle
         
-        subeMenu.add(magazaEkleItem);
         subeMenu.add(magazayaUrunTedarikEtItem);
         subeMenu.add(magazaGoruntuleItem);
         subeMenu.add(magazaDuzenleItem);
@@ -236,18 +235,25 @@ public class GUI {
         sistemMenu.add(kaydetItem);
         sistemMenu.add(yukleItem);
         
+        // Yönetici menü alt seçenekleri
+        
+        yoneticiMenu.add(magazaEkleItem);
+        yoneticiMenu.add(depoEkleItem);
+        
         // Başlangıçta hepsi devre dışı
         urunMenu.setEnabled(false);
         subeMenu.setEnabled(false);
         personelMenu.setEnabled(false);
         depoMenu.setEnabled(false);
         sistemMenu.setEnabled(false);
+        yoneticiMenu.setEnabled(false);
 
         // "Manage" menüsüne "Ürün" (alt menülü) ve "Şube"yi ekle
         manageMenu.add(urunMenu);
         manageMenu.add(subeMenu);
         manageMenu.add(personelMenu);
         manageMenu.add(depoMenu);
+        manageMenu.add(yoneticiMenu);
         manageMenu.add(sistemMenu);
         manageMenu.add(cikisItem);
 
@@ -263,6 +269,7 @@ public class GUI {
             public void menuSelected(MenuEvent e) {
                 if (!yetkiAlindi) {
                     String girilenSifre = JOptionPane.showInputDialog(frame, "Şifreyi giriniz:");
+                    if (girilenSifre == null) return;
                     switch (girilenSifre){
 					case "1111": 
                         urunMenu.setEnabled(true);
@@ -282,6 +289,15 @@ public class GUI {
 					case "4444":
                         depoMenu.setEnabled(true);
                         sistemMenu.setEnabled(true);
+                        yetkiAlindi = true;
+                        break;
+					case "5555":
+						urunMenu.setEnabled(true);
+				        subeMenu.setEnabled(true);
+				        personelMenu.setEnabled(true);
+				        depoMenu.setEnabled(true);
+				        yoneticiMenu.setEnabled(true);
+				        sistemMenu.setEnabled(true);
                         yetkiAlindi = true;
                         break;
 					default:
