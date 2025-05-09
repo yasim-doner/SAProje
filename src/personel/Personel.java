@@ -45,8 +45,8 @@ public class Personel implements Serializable{
     public void setDepartman(String departman) { this.departman = departman; }
 
     // İşlemler
-    public void terfiEt(double yeniMaas, String yeniGorev) {
-        this.maas = yeniMaas;
+    public void terfiEt(double zam, String yeniGorev) {
+        this.maas += zam;
         this.gorev = yeniGorev;
         this.terfiSayisi++;
     }

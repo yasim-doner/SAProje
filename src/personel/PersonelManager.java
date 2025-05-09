@@ -3,6 +3,8 @@ package personel;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import GUI.DuplicateInfoException;
+
 public class PersonelManager implements Serializable{
     /**
 	 * 
@@ -15,11 +17,19 @@ public class PersonelManager implements Serializable{
     }
 
     // Personel ekleme
-    public void personelEkle(Personel p) {
-        personelListesi.add(p);
-        System.out.println("Yeni personel eklendi: " + p.getAd() + " " + p.getSoyad());
+    public void personelEkle(Personel personel) {
+    	for (Personel p : personelListesi) {
+            if (p.getId() == personel.getId()) {
+            	throw new DuplicateInfoException("İşlem başarısız. Girdiğiniz marka zaten sistemimizde bulunmakta.");
+            }
+        }
+        personelListesi.add(personel);
     }
 
+    public ArrayList<Personel> getPersonelListesi() {
+		return personelListesi;
+	}
+    
     // Personel çıkarma
     public void personelCikar(int id) {
         Personel silinecek = null;
@@ -38,10 +48,10 @@ public class PersonelManager implements Serializable{
     }
 
     // Terfi ettirme
-    public void terfiEt(int id, double yeniMaas, String yeniGorev) {
+    public void terfiEt(int id, double zam, String yeniGorev) {
         for (Personel p : personelListesi) {
             if (p.getId() == id) {
-                p.terfiEt(yeniMaas, yeniGorev);
+                p.terfiEt(zam, yeniGorev);
                 System.out.println(p.getAd() + " " + p.getSoyad() + " terfi etti!");
                 return;
             }

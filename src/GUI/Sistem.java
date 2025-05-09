@@ -17,14 +17,18 @@ public class Sistem implements Serializable {
 	private ArrayList<Depo> depolar;
 	private ArrayList<Marka> markalar;
 	private ArrayList<Magaza> magazalar;
-	private ArrayList<Personel> personeller;
+	private PersonelManager personelManager;
 	
 	public Sistem() {
-		urunler = new ArrayList<>();
-		depolar = new ArrayList<>();
-		markalar = new ArrayList<>();
-		magazalar = new ArrayList<>();
-		personeller = new ArrayList<>();
+		this.urunler = new ArrayList<>();
+		this.depolar = new ArrayList<>();
+		this.markalar = new ArrayList<>();
+		this.magazalar = new ArrayList<>();
+		this.personelManager = new PersonelManager();
+	}
+	
+	public PersonelManager getPersonelManager() {
+		return this.personelManager;
 	}
 	
 	public ArrayList<Urun> getUrunler() {return urunler;}
@@ -35,9 +39,6 @@ public class Sistem implements Serializable {
 	
 	public ArrayList<Magaza> getMagazalar() {
 		return magazalar;
-	}
-	public ArrayList<Personel> getPersoneller() {
-		return personeller;
 	}
 
 	public void urunEkle(Urun urun) throws DuplicateInfoException {
@@ -70,13 +71,7 @@ public class Sistem implements Serializable {
 		}
 		magazalar.add(magaza);
 	}
-	public void personelEkle(Personel personel) throws DuplicateInfoException {
-		for (Personel p : personeller) {
-			if(p.getId() == personel.getId())
-				throw new DuplicateInfoException("İşlem başarısız. Girdiğiniz personel zaten sistemimizde bulunmakta.");
-		}
-		personeller.add(personel);
-	}
+	
 	public ArrayList<Magaza> getMagazaAtKonum(String konum) {
 		ArrayList<Magaza> konumMagaza = new ArrayList<>();
 		for(Magaza m : magazalar) {
@@ -106,7 +101,7 @@ public class Sistem implements Serializable {
 		return null;
 	}
 	public Personel getPersonelbyName(String name) {
-		for (Personel personel : personeller) {
+		for (Personel personel : personelManager.getPersonelListesi()) {
 			if(personel.getAdSoyad().equals(name)) return personel;
 		}
 		return null;

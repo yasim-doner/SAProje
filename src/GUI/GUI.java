@@ -165,7 +165,7 @@ public class GUI {
         // "Manage" ana menüsü
         JMenu manageMenu = new JMenu("Manage");
 
-        // === "Ürün" Alt Menüsü ===
+        // === "Manage" Alt Menüsü ===
         JMenu urunMenu = new JMenu("Urun Islemleri");
         JMenu subeMenu = new JMenu("Sube Islemleri");
         JMenu personelMenu = new JMenu("Personel Islemleri");
@@ -189,12 +189,14 @@ public class GUI {
         JMenuItem magazaEkleItem = new JMenuItem("Mağaza Ekle");
         JMenuItem magazayaUrunTedarikEtItem = new JMenuItem("Mağazaya Ürün Tedarik Et");
         JMenuItem magazaGoruntuleItem = new JMenuItem("Magazaları İncele");
+        JMenuItem magazaDuzenleItem = new JMenuItem("Mağaza Düzenle");
 
         
         // "Personel" alt seçenekleri
         
         JMenuItem personelEkleItem = new JMenuItem("Personel Ekle");
         JMenuItem personelGoruntuleItem = new JMenuItem("Personel İncele");
+        JMenuItem personelDuzenleItem = new JMenuItem("Personel Düzenle");
         
         // "sistem" alt seçenekleri
         
@@ -217,11 +219,13 @@ public class GUI {
         subeMenu.add(magazaEkleItem);
         subeMenu.add(magazayaUrunTedarikEtItem);
         subeMenu.add(magazaGoruntuleItem);
+        subeMenu.add(magazaDuzenleItem);
         
         // Persone menüsü alt seçenekleri ekle
         
         personelMenu.add(personelEkleItem);
         personelMenu.add(personelGoruntuleItem);
+        personelMenu.add(personelDuzenleItem);
         
         // Sistem menüsü alt seçenekleri
         
@@ -253,7 +257,7 @@ public class GUI {
             @Override
             public void menuSelected(MenuEvent e) {
                 if (!yetkiAlindi) {
-                    String girilenSifre = JOptionPane.showInputDialog(frame, "Şifreyi giriniz:");
+                    String girilenSifre = "1234"; //JOptionPane.showInputDialog(frame, "Şifreyi giriniz:");
                     if ("1234".equals(girilenSifre)) { // Şifre buradan kontrol edilir
                         yetkiAlindi = true;
                         urunMenu.setEnabled(true);
@@ -276,6 +280,116 @@ public class GUI {
 			public void menuCanceled(MenuEvent e) {}
         });
         
+        personelDuzenleItem.addActionListener(e -> {
+        	
+        	JFrame pencere = new JFrame("Personel İncele");
+        	pencere.setSize(500, 600);  // Increased size to fit table
+        	pencere.setResizable(false);
+        	pencere.setLocationRelativeTo(frame);
+        	pencere.setLayout(new GridBagLayout());
+
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.HORIZONTAL;
+        	gbc.insets = new Insets(5, 10, 5, 10);
+        	gbc.anchor = GridBagConstraints.WEST;
+
+        	// Row 0: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 0;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Personel Seç:"), gbc);
+        	
+        	JComboBox<String> comboBox = new JComboBox<>();
+            for (Personel p : sistem.getPersonelManager().getPersonelListesi()) {
+				comboBox.addItem(p.getAdSoyad());
+			}
+            
+            gbc.gridx = 1;
+        	pencere.add(comboBox, gbc);
+        	
+        	JLabel label = new JLabel("Yeni Maaş: ");
+        	JTextField field = new JTextField();
+        	
+        	JButton maasGuncelleButton = new JButton("Maaş Güncelle");
+        	
+        	JLabel label2 = new JLabel("Zam Miktarı: ");
+        	JTextField field2 = new JTextField();
+        	
+        	JLabel label3 = new JLabel("Yeni Görev: ");
+        	JTextField field3 = new JTextField();
+        	
+        	JButton terfiButton = new JButton("Terfi Et");
+        	
+        	JLabel label4 = new JLabel("Yeni Depertman: ");
+        	JTextField field4 = new JTextField();
+        	
+        	JButton departmanButton = new JButton("Departman Ata");
+        	
+        	JButton personelCıkarButton = new JButton("Personel Çıkar");
+
+        	
+        	gbc.gridy++;
+    	    gbc.gridx = 0; pencere.add(label, gbc);
+    	    gbc.gridx = 1; pencere.add(field, gbc);
+    	    gbc.gridx = 2; pencere.add(maasGuncelleButton, gbc);
+    	    
+    	    gbc.gridy++;
+    	    gbc.gridx = 0; pencere.add(label2, gbc);
+    	    gbc.gridx = 1; pencere.add(field2, gbc);
+    	    
+    	    gbc.gridy++;
+    	    gbc.gridx = 0; pencere.add(label3, gbc);
+    	    gbc.gridx = 1; pencere.add(field3, gbc);
+    	    gbc.gridx = 2; pencere.add(terfiButton, gbc);
+
+    	    gbc.gridy++;
+    	    gbc.gridx = 0; pencere.add(label4, gbc);
+    	    gbc.gridx = 1; pencere.add(field4, gbc);
+    	    gbc.gridx = 2; pencere.add(departmanButton, gbc);
+    	    
+    	    gbc.gridy++;
+    	    gbc.gridx = 0; pencere.add(personelCıkarButton, gbc);
+
+    	    
+    	    maasGuncelleButton.addActionListener(ev -> {    	    	
+    	    	Personel selected = sistem.getPersonelbyName((String) comboBox.getSelectedItem());
+    	    	
+    	    	try {
+					sistem.getPersonelManager().maasGuncelle(selected.getId(), Integer.parseInt(field.getText()));
+				} catch (NumberFormatException e2) {
+					JOptionPane.showMessageDialog(pencere, "Lütfen geçerli bir sayısal değer giriniz!", "Error", JOptionPane.ERROR_MESSAGE);
+                  	return; 	
+				}
+    	    	pencere.dispose();
+    	    });
+
+    	    terfiButton.addActionListener(ev -> {
+    	    	Personel selected = sistem.getPersonelbyName((String) comboBox.getSelectedItem());
+    	    	
+    	    	try {
+    	    		sistem.getPersonelManager().terfiEt(selected.getId(), Integer.parseInt(field2.getText()), field3.getText());
+				} catch (NumberFormatException e2) {
+					JOptionPane.showMessageDialog(pencere, "Lütfen geçerli bir sayısal değer giriniz!", "Error", JOptionPane.ERROR_MESSAGE);
+                  	return; 	
+				}
+    	    	pencere.dispose();
+    	    });
+    	    
+    	    departmanButton.addActionListener(ev -> {
+    	    	Personel selected = sistem.getPersonelbyName((String) comboBox.getSelectedItem());
+    	    	sistem.getPersonelManager().departmanAta(selected.getId(), field4.getText());
+    	    	pencere.dispose();
+    	    });
+    	    
+    	    personelCıkarButton.addActionListener(ev -> {
+    	    	Personel selected = sistem.getPersonelbyName((String) comboBox.getSelectedItem());
+    	    	sistem.getPersonelManager().personelCikar(selected.getId());
+    	    	pencere.dispose();
+    	    });
+    	    
+        	pencere.setVisible(true);
+        });
+        
         personelGoruntuleItem.addActionListener(e -> {
         	JFrame pencere = new JFrame("Personel İncele");
         	pencere.setSize(500, 600);  // Increased size to fit table
@@ -295,7 +409,7 @@ public class GUI {
         	pencere.add(new JLabel("Personel Seç:"), gbc);
         	
         	JComboBox<String> comboBox = new JComboBox<>();
-            for (Personel p : sistem.getPersoneller()) {
+            for (Personel p : sistem.getPersonelManager().getPersonelListesi()) {
 				comboBox.addItem(p.getAdSoyad());
 			}
             
@@ -322,7 +436,7 @@ public class GUI {
         	    gbc.gridx = 1;
         	    pencere.add(labelPairs[i][1], gbc);
         	}
-        	
+        	        	
         	comboBox.addActionListener(ev -> {
             	Personel selected = sistem.getPersonelbyName((String) comboBox.getSelectedItem());
             	
@@ -678,10 +792,10 @@ public class GUI {
             			  departmanField.getText()
             	  );
             	  try {
-                	  sistem.personelEkle(personel);
+                	  sistem.getPersonelManager().personelEkle(personel);
                 	  JOptionPane.showMessageDialog(pencere,
                               "Personel kaydedildi:\nId:" + personel.getId() + "\nAd: " + personel.getAdSoyad() + "\nGoreb: " + personel.getGorev() +
-                                      "\nDepartman: " + personel.getDepartman() + "\nMaaş: " + personel.getMaas() + "\n Terfi Sayısı: " + personel.getTerfiSayisi());
+                                      "\nDepartman: " + personel.getDepartman() + "\nMaaş: " + personel.getMaas() + "\nTerfi Sayısı: " + personel.getTerfiSayisi());
 
                       pencere.dispose();
             	  } catch (DuplicateInfoException ex) {
@@ -1282,7 +1396,6 @@ public class GUI {
             JLabel siparisNoLabel = new JLabel("Sipariş No:");
             JTextField siparisNoField = new JTextField(10);
 
-            JLabel tedarikciLabel = new JLabel("Tedarikçi:");
             JComboBox<String> tedarikciCombo = new JComboBox<>();
             for (Marka marka : sistem.getMarkalar()) {
                 tedarikciCombo.addItem(marka.getName());
