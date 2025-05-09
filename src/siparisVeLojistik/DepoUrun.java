@@ -1,8 +1,14 @@
 package siparisVeLojistik;
 
+import java.io.Serializable;
+
 import urun.*;
 
-public class DepoUrun {
+public class DepoUrun implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1480642082128640048L;
 	private Urun urun;
 	private int adet;
 	

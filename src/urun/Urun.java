@@ -36,7 +36,14 @@ public class Urun implements Serializable {
 	public double getAlisFiyat() {return alisFiyat;}
 	public HashMap<LocalDate, Double> getFiyatGecmisi() {return fiyatGecmisi;}
 	public LocalDate getSkTarihi() {return skTarihi;}
-
+	public Marka getMarka() {
+		return marka;
+	}
+	public Kampanya getKampanya() {
+		return kampanya;
+	}
+	
+	
 	public void setIsim(String isim) {this.isim = isim;}
 	public void setBrutFiyat(double brutFiyat) {
 		fiyatGecmisi.put(LocalDate.now(), this.brutFiyat);
@@ -66,11 +73,15 @@ public class Urun implements Serializable {
 			}
 		}
 		kar = netFiyat() - netAlisFiyat; 
-		if(kampanya.getEkUrun() != null) {
-			kar -= kampanya.getEkUrun().getAlisFiyat();
+		if (kampanya != null) {
+			if(kampanya.getEkUrun() != null) {
+				kar -= kampanya.getEkUrun().getAlisFiyat();
+			}
 		}
-		if(marka.getMarkaAnlasmasi().getEkUrun() != null) {
-			kar += marka.getMarkaAnlasmasi().getEkUrun().getAlisFiyat();
+		if(marka.getMarkaAnlasmasi() != null) {
+			if(marka.getMarkaAnlasmasi().getEkUrun() != null) {
+				kar += marka.getMarkaAnlasmasi().getEkUrun().getAlisFiyat();
+			}
 		}
 		return kar; // birim başına kar miktarı
 	}

@@ -127,13 +127,16 @@ public class GUI {
         	}
         });
         
+        MagazaManager magazaManagerSepet = new MagazaManager(null);
+        Musteri musteri = new Musteri();
+        
         addToBasketBtn.addActionListener(e -> {
         	String product = (String) productBox.getSelectedItem();
             String quantity = quantityField.getText();
-            String market = (String) marketBox.getSelectedItem();
-            String city = cityField.getText();
+            
+            musteri.sepeteUrunEkle(sistem.getUrunbyName(product), Integer.parseInt(quantity));
 
-            String entry = String.format("- %s x%s (%s / %s)\n", product, quantity, market, city);
+            String entry = String.format("- %s x%s \n", product, quantity);
             basketArea.append(entry);
             quantityField.setText("");
         });
@@ -141,8 +144,16 @@ public class GUI {
         buyBtn.addActionListener(e -> {
         	if (basketArea.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Sepet boş!", "Uyarı", JOptionPane.WARNING_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(frame, "Satın alma işlemi tamamlandı.\n\n" + basketArea.getText());
+            } 
+        	else if(sistem.getMagazabyName((String) marketBox.getSelectedItem()).getPersonelListesi().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Seçtiğini Mağazada Personel Yok!", "Uyarı", JOptionPane.WARNING_MESSAGE);
+        	}
+        	else {
+                
+            	magazaManagerSepet.setMagaza(sistem.getMagazabyName((String) marketBox.getSelectedItem()));
+            	magazaManagerSepet.musteriSepettenSatinAl(musteri);
+            	
+            	JOptionPane.showMessageDialog(frame, "Satın alma işlemi tamamlandı.\n\n" + basketArea.getText());
                 basketArea.setText("");
             }
         });
@@ -165,19 +176,25 @@ public class GUI {
         JMenuItem urunEkleItem = new JMenuItem("Urun Ekle");
         JMenuItem kampanyaEkleItem = new JMenuItem("Urune Kampanya Yap");
         JMenuItem markaEkleItem = new JMenuItem("Yeni Marka Ekle");
+        JMenuItem urunGoruntuleItem = new JMenuItem("Ürünleri İncele");
         
         // "Depo"nun alt seçenekleri
         JMenuItem depoEkleItem = new JMenuItem("Depo Ekle");
         JMenuItem depoSiparisItem = new JMenuItem("Depoya Urun Siparis Et");
+        JMenuItem depoGoruntuleItem = new JMenuItem("Depoları İncele");
+
         
         // "Şube" alt seçenekleri
         
         JMenuItem magazaEkleItem = new JMenuItem("Mağaza Ekle");
         JMenuItem magazayaUrunTedarikEtItem = new JMenuItem("Mağazaya Ürün Tedarik Et");
+        JMenuItem magazaGoruntuleItem = new JMenuItem("Magazaları İncele");
 
+        
         // "Personel" alt seçenekleri
         
         JMenuItem personelEkleItem = new JMenuItem("Personel Ekle");
+        JMenuItem personelGoruntuleItem = new JMenuItem("Personel İncele");
         
         // "sistem" alt seçenekleri
         
@@ -188,19 +205,23 @@ public class GUI {
         urunMenu.add(urunEkleItem);
         urunMenu.add(kampanyaEkleItem);
         urunMenu.add(markaEkleItem);
+        urunMenu.add(urunGoruntuleItem);
         
         // "Depo" menüsüne alt seçenekleri ekle
         depoMenu.add(depoEkleItem);
         depoMenu.add(depoSiparisItem);
+        depoMenu.add(depoGoruntuleItem);
         
         // Şube menüsüne alt seçenekleri ekle
         
         subeMenu.add(magazaEkleItem);
         subeMenu.add(magazayaUrunTedarikEtItem);
+        subeMenu.add(magazaGoruntuleItem);
         
         // Persone menüsü alt seçenekleri ekle
         
         personelMenu.add(personelEkleItem);
+        personelMenu.add(personelGoruntuleItem);
         
         // Sistem menüsü alt seçenekleri
         
@@ -255,6 +276,337 @@ public class GUI {
 			public void menuCanceled(MenuEvent e) {}
         });
         
+        personelGoruntuleItem.addActionListener(e -> {
+        	JFrame pencere = new JFrame("Personel İncele");
+        	pencere.setSize(500, 600);  // Increased size to fit table
+        	pencere.setResizable(false);
+        	pencere.setLocationRelativeTo(frame);
+        	pencere.setLayout(new GridBagLayout());
+
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.HORIZONTAL;
+        	gbc.insets = new Insets(5, 10, 5, 10);
+        	gbc.anchor = GridBagConstraints.WEST;
+
+        	// Row 0: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 0;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Personel Seç:"), gbc);
+        	
+        	JComboBox<String> comboBox = new JComboBox<>();
+            for (Personel p : sistem.getPersoneller()) {
+				comboBox.addItem(p.getAdSoyad());
+			}
+            
+            gbc.gridx = 1;
+        	pencere.add(comboBox, gbc);
+        	
+        	// Prepare labels in a list
+        	JLabel[][] labelPairs = {
+        	    {new JLabel("ID: "), new JLabel("")},
+        	    {new JLabel("İsim: "), new JLabel("")},
+        	    {new JLabel("Soy isim: "), new JLabel("")},
+        	    {new JLabel("Gorev: "), new JLabel("")},
+        	    {new JLabel("Maaş: "), new JLabel("")},
+        	    {new JLabel("Departman: "), new JLabel("")},
+        	    {new JLabel("Terfi Sayısı: "), new JLabel("")},
+        	};
+
+        	// Add label pairs
+        	for (int i = 0; i < labelPairs.length; i++) {
+        	    gbc.gridy = i + 1;
+        	    gbc.gridx = 0;
+        	    pencere.add(labelPairs[i][0], gbc);
+
+        	    gbc.gridx = 1;
+        	    pencere.add(labelPairs[i][1], gbc);
+        	}
+        	
+        	comboBox.addActionListener(ev -> {
+            	Personel selected = sistem.getPersonelbyName((String) comboBox.getSelectedItem());
+            	
+            	labelPairs[0][1].setText(Integer.toString(selected.getId()));
+            	labelPairs[1][1].setText(selected.getAd());
+            	labelPairs[2][1].setText(selected.getSoyad());
+            	labelPairs[3][1].setText(selected.getGorev());
+            	labelPairs[4][1].setText(Double.toString(selected.getMaas()));
+            	labelPairs[5][1].setText(selected.getDepartman());
+            	labelPairs[6][1].setText(Integer.toString(selected.getTerfiSayisi()));
+        	});
+        
+        	pencere.setVisible(true);
+        });
+        
+        depoGoruntuleItem.addActionListener(e -> {
+        	JFrame pencere = new JFrame("Depo İncele");
+        	pencere.setSize(500, 600);  // Increased size to fit table
+        	pencere.setResizable(false);
+        	pencere.setLocationRelativeTo(frame);
+        	pencere.setLayout(new GridBagLayout());
+
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.HORIZONTAL;
+        	gbc.insets = new Insets(5, 10, 5, 10);
+        	gbc.anchor = GridBagConstraints.WEST;
+
+        	// Row 0: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 0;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Depo Seç:"), gbc);
+        	
+        	JComboBox<String> comboBox = new JComboBox<>();
+            for (Depo depo : sistem.getDepolar()) {
+				comboBox.addItem(depo.getDepoAdi());
+			}
+            
+            gbc.gridx = 1;
+        	pencere.add(comboBox, gbc);
+        	
+        	// Prepare labels in a list
+        	JLabel[][] labelPairs = {
+        	    {new JLabel("İsim: "), new JLabel("")},
+        	    {new JLabel("Konum: "), new JLabel("")},
+        	    {new JLabel("Kapasite: "), new JLabel("")},
+        	    {new JLabel("Urun Başına Kapasite: "), new JLabel("")},
+        	    {new JLabel("Toplam Urun Miktarı: "), new JLabel("")},
+        	};
+
+        	// Add label pairs
+        	for (int i = 0; i < labelPairs.length; i++) {
+        	    gbc.gridy = i + 1;
+        	    gbc.gridx = 0;
+        	    pencere.add(labelPairs[i][0], gbc);
+
+        	    gbc.gridx = 1;
+        	    pencere.add(labelPairs[i][1], gbc);
+        	}
+        	
+        	// Row after last label: JTable
+        	gbc.gridx = 0;
+        	gbc.gridy = labelPairs.length + 1;
+        	gbc.gridwidth = 2;
+        	gbc.fill = GridBagConstraints.BOTH;
+        	gbc.weighty = 1.0;
+        	
+        	String[] columnNames = {"Urun", "Adet"};
+        	DefaultTableModel urunModel = new DefaultTableModel(columnNames, 0);
+        	JTable table = new JTable(urunModel);
+        	JScrollPane tableScrollPane = new JScrollPane(table);
+        	pencere.add(tableScrollPane, gbc);
+        	
+        	comboBox.addActionListener(ev -> {
+            	Depo selected = sistem.getDepobyName((String) comboBox.getSelectedItem());
+
+            	urunModel.setRowCount(0);
+            	
+            	for (DepoUrun u : selected.getUrunler()) {
+            	    urunModel.addRow(new Object[]{u.getUrun().getIsim(), u.getAdet()});
+            	}
+            	
+            	labelPairs[0][1].setText(selected.getDepoAdi());
+            	labelPairs[1][1].setText(selected.getDepoKonumu());
+            	labelPairs[2][1].setText(Integer.toString(selected.getDepoKapasitesi()));
+            	labelPairs[3][1].setText(Integer.toString(selected.getUrunBasinaDepoKapasitesi()));
+            	labelPairs[4][1].setText(Integer.toString(selected.getToplamUrunMiktari()));
+        	});
+        
+        	pencere.setVisible(true);            
+            
+        });
+        
+        urunGoruntuleItem.addActionListener(e -> {
+        	
+        	JFrame pencere = new JFrame("Urun İncele");
+        	pencere.setSize(500, 600);  // Increased size to fit table
+        	pencere.setResizable(false);
+        	pencere.setLocationRelativeTo(frame);
+        	pencere.setLayout(new GridBagLayout());
+
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.HORIZONTAL;
+        	gbc.insets = new Insets(5, 10, 5, 10);
+        	gbc.anchor = GridBagConstraints.WEST;
+
+        	// Row 0: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 0;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Ürün Seç:"), gbc);
+        	
+            JComboBox<String> comboBox = new JComboBox<>();
+            for (Urun urun : sistem.getUrunler()) {
+				comboBox.addItem(urun.getIsim());
+			}
+
+        	gbc.gridx = 1;
+        	pencere.add(comboBox, gbc);
+
+        	// Prepare labels in a list
+        	JLabel[][] labelPairs = {
+        	    {new JLabel("Barkod: "), new JLabel("")},
+        	    {new JLabel("İsim: "), new JLabel("")},
+        	    {new JLabel("Brüt Fiyat: "), new JLabel("")},
+        	    {new JLabel("Alış Fiyatı: "), new JLabel("")},
+        	    {new JLabel("SK Tarihi: "), new JLabel("")},
+        	    {new JLabel("Marka: "), new JLabel("")},
+        	    {new JLabel("Net Fiyat: "), new JLabel("")},
+        	    {new JLabel("Kar: "), new JLabel("")},
+        	    {new JLabel("Kampanya: "), new JLabel("")},
+        	};
+
+        	// Add label pairs
+        	for (int i = 0; i < labelPairs.length; i++) {
+        	    gbc.gridy = i + 1;
+        	    gbc.gridx = 0;
+        	    pencere.add(labelPairs[i][0], gbc);
+
+        	    gbc.gridx = 1;
+        	    pencere.add(labelPairs[i][1], gbc);
+        	}
+
+        	// Row after last label: JTable
+        	gbc.gridx = 0;
+        	gbc.gridy = labelPairs.length + 1;
+        	gbc.gridwidth = 2;
+        	gbc.fill = GridBagConstraints.BOTH;
+        	gbc.weighty = 1.0;
+        	
+        	String[] columnNames = {"Tarih", "Fiyat"};
+        	DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        	
+        	comboBox.addActionListener(ev -> {
+            	Urun selectedUrun = sistem.getUrunbyName((String) comboBox.getSelectedItem());
+
+            	model.setRowCount(0);
+            	
+            	for (var entry : selectedUrun.getFiyatGecmisi().entrySet()) {
+            	    model.addRow(new Object[]{entry.getKey(), entry.getValue()});
+            	}
+            	
+            	labelPairs[0][1].setText(Integer.toString(selectedUrun.getBarkod()));
+            	labelPairs[1][1].setText(selectedUrun.getIsim());
+            	labelPairs[2][1].setText(Double.toString(selectedUrun.getBrutFiyat()));
+            	labelPairs[3][1].setText(Double.toString(selectedUrun.getAlisFiyat()));
+            	labelPairs[4][1].setText(selectedUrun.getSkTarihi().toString());
+            	labelPairs[5][1].setText(selectedUrun.getMarka().getName());
+            	labelPairs[6][1].setText(Double.toString(selectedUrun.netFiyat()));
+            	labelPairs[7][1].setText(Double.toString(selectedUrun.karHesapla()) + "TL, %" + selectedUrun.karHesapla()/selectedUrun.getAlisFiyat()*100);
+            	if(selectedUrun.getKampanya() != null) {
+                	labelPairs[8][1].setText("%" + Integer.toString(selectedUrun.getKampanya().getIndirim()));
+                	if(selectedUrun.getKampanya().getEkUrun() != null) {
+                		labelPairs[8][1].setText(labelPairs[8][1].getText() + " " + selectedUrun.getKampanya().getEkUrun().getIsim());
+                	}
+            	}
+        	});
+        	
+
+        	
+        
+        	JTable table = new JTable(model);
+        	JScrollPane tableScrollPane = new JScrollPane(table);
+        	pencere.add(tableScrollPane, gbc);
+
+        	pencere.setVisible(true);            
+            
+        });
+        
+        magazaGoruntuleItem.addActionListener(e -> {
+        	JFrame pencere = new JFrame("Mağaza İncele");
+        	pencere.setSize(500, 600);  // Increased size to fit table
+        	pencere.setResizable(false);
+        	pencere.setLocationRelativeTo(frame);
+        	pencere.setLayout(new GridBagLayout());
+
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	gbc.fill = GridBagConstraints.HORIZONTAL;
+        	gbc.insets = new Insets(5, 10, 5, 10);
+        	gbc.anchor = GridBagConstraints.WEST;
+
+        	// Row 0: ComboBox
+        	gbc.gridx = 0;
+        	gbc.gridy = 0;
+        	gbc.gridwidth = 1;
+        	pencere.add(new JLabel("Mağaza Seç:"), gbc);
+        	
+            JComboBox<String> comboBox = new JComboBox<>();
+            for (Magaza m : sistem.getMagazalar()) {
+				comboBox.addItem(m.getMagazaAdi());
+			}
+
+        	gbc.gridx = 1;
+        	pencere.add(comboBox, gbc);
+
+        	// Prepare labels in a list
+        	JLabel[][] labelPairs = {
+        	    {new JLabel("Mağaza Adı: "), new JLabel("")},
+        	    {new JLabel("Adres: "), new JLabel("")},
+        	    {new JLabel("Gelen Müsteri: "), new JLabel("")},
+        	    {new JLabel("Ciro: "), new JLabel("")},
+        	    {new JLabel("Depo: "), new JLabel("")},
+        	};
+
+        	// Add label pairs
+        	for (int i = 0; i < labelPairs.length; i++) {
+        	    gbc.gridy = i + 1;
+        	    gbc.gridx = 0;
+        	    pencere.add(labelPairs[i][0], gbc);
+
+        	    gbc.gridx = 1;
+        	    pencere.add(labelPairs[i][1], gbc);
+        	}
+
+        	// Row after last label: JTable
+        	gbc.gridx = 0;
+        	gbc.gridy = labelPairs.length + 1;
+        	gbc.gridwidth = 2;
+        	gbc.fill = GridBagConstraints.BOTH;
+        	gbc.weighty = 1.0;
+        	
+        	String[] columnNames = {"Urun", "Adet"};
+        	DefaultTableModel urunModel = new DefaultTableModel(columnNames, 0);
+        	JTable table = new JTable(urunModel);
+        	JScrollPane tableScrollPane = new JScrollPane(table);
+        	pencere.add(tableScrollPane, gbc);
+
+        
+        	gbc.gridx = 0;
+        	gbc.gridy = labelPairs.length + 2;
+        	gbc.gridwidth = 2;
+        	gbc.fill = GridBagConstraints.BOTH;
+        	gbc.weighty = 1.0;
+        	
+        	String[] columnNames2 = {"id", "İsim"};
+        	DefaultTableModel personelModel = new DefaultTableModel(columnNames2, 0);
+        	JTable table2 = new JTable(personelModel);
+        	JScrollPane tableScrollPane2 = new JScrollPane(table2);
+        	pencere.add(tableScrollPane2, gbc);
+        	
+        	comboBox.addActionListener(ev -> {
+            	Magaza selected = sistem.getMagazabyName((String) comboBox.getSelectedItem());
+
+            	urunModel.setRowCount(0); personelModel.setRowCount(0);
+            	
+            	for (var entry : selected.getUrunler().entrySet()) {
+            	    urunModel.addRow(new Object[]{entry.getKey(), entry.getValue()});
+            	}
+            	for (Personel personel : selected.getPersonelListesi()) {
+            	    personelModel.addRow(new Object[]{personel.getId(), personel.getAdSoyad()});
+            	}
+            	
+            	labelPairs[0][1].setText(selected.getMagazaAdi());
+            	labelPairs[1][1].setText(selected.getMagazaAdres());
+            	labelPairs[2][1].setText(Integer.toString(selected.getGelenMusteriSayisi()));
+            	labelPairs[3][1].setText(Double.toString(selected.getCiro()));
+            	labelPairs[4][1].setText(selected.getDepo().getDepoAdi());
+        	});
+        
+        	pencere.setVisible(true);            
+            
+        });
+        
+        
         
         kaydetItem.addActionListener(e -> {
         	SistemIO.saveToFile(sistem, filename);
@@ -296,8 +648,6 @@ public class GUI {
               JLabel departmanLabel = new JLabel("Departman:");
               JTextField departmanField = new JTextField(12);
 
-              JLabel terfiLabel = new JLabel("Terfi Sayısı:");
-              JTextField terfiField = new JTextField(12);
               
               JButton kaydetButton = new JButton("Kaydet");
               
@@ -310,7 +660,8 @@ public class GUI {
             		  
             	  }catch (NumberFormatException ex) {
                   	JOptionPane.showMessageDialog(pencere, "Lütfen geçerli bir sayısal değer giriniz!", "Error", JOptionPane.ERROR_MESSAGE);
-                  }
+                  	return; 	
+            	  }
             	  
             	   if (adField.getText().isEmpty() || soyadField.getText().isEmpty() || gorevField.getText().isEmpty() || departmanField.getText().isEmpty()) {
                        JOptionPane.showMessageDialog(pencere, "Lütfen tüm alanları doldurun!");
@@ -370,11 +721,6 @@ public class GUI {
               gbc.gridx = 1;
               pencere.add(departmanField, gbc);
 
-              gbc.gridx = 0; gbc.gridy++;
-              pencere.add(terfiLabel, gbc);
-              gbc.gridx = 1;
-              pencere.add(terfiField, gbc);
-              
               gbc.gridx = 0; gbc.gridy++;
               pencere.add(kaydetButton, gbc);            
               
@@ -598,6 +944,13 @@ public class GUI {
             for (Urun urun : sistem.getUrunler()) {
 				urunComboBox.addItem(urun.getIsim());
 			}
+            JLabel EkurunLabel = new JLabel("Ek Ürün Seç:");
+            JComboBox<String> ekurunComboBox = new JComboBox<>();
+            ekurunComboBox.addItem("YOK");
+            for (Urun urun : sistem.getUrunler()) {
+				ekurunComboBox.addItem(urun.getIsim());
+			}
+            
             
             JLabel indirimLabel = new JLabel("İndirim (%):");
             JTextField indirimField = new JTextField(10);
@@ -626,6 +979,11 @@ public class GUI {
             kampanyaEklePenceresi.add(indirimField, gbc);
 
             gbc.gridx = 0; gbc.gridy = ++row;
+            kampanyaEklePenceresi.add(EkurunLabel, gbc);
+            gbc.gridx = 1;
+            kampanyaEklePenceresi.add(ekurunComboBox, gbc);
+            
+            gbc.gridx = 0; gbc.gridy = ++row;
             kampanyaEklePenceresi.add(tarihLabel, gbc);
             gbc.gridx = 1;
             kampanyaEklePenceresi.add(datePicker, gbc);
@@ -637,7 +995,11 @@ public class GUI {
                 try {
                 	boolean flag = false;
                 	Urun selectedUrun = null;
+                	Urun selectedEkUrun = null;
+
                     String secilenUrun = (String) urunComboBox.getSelectedItem();
+                    String secilenEkUrun = (String) ekurunComboBox.getSelectedItem();
+                    
                     int indirim = Integer.parseInt(indirimField.getText());
                     Object selectedDate = datePicker.getModel().getValue();
 
@@ -647,18 +1009,21 @@ public class GUI {
                         LocalDate sonTarih = ((java.util.Date) selectedDate).toInstant()
                                 .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
                         for (Urun urun : sistem.getUrunler()) {
-							if(urun.getIsim().contains(secilenUrun)) {
+							if(urun.getIsim().equals(secilenUrun)) {
 								flag = true;
 								selectedUrun = urun;
 							}
+							if(urun.getIsim().equals(secilenEkUrun)) {
+								selectedEkUrun = urun;
+							}
 						}
+
                         if(flag) {
-                        	Kampanya kampanya = new Kampanya(indirim, selectedUrun, sonTarih);
+                        	Kampanya kampanya = new Kampanya(indirim, selectedEkUrun, sonTarih);
                         	selectedUrun.setKampanya(kampanya);
-                        	System.out.println(selectedUrun.getIsim());
                         	JOptionPane.showMessageDialog(kampanyaEklePenceresi,
                                 "Kampanya Kaydedildi!\nÜrün: " + secilenUrun +
-                                "\nİndirim: " + indirim + "%\nSon Tarih: " + kampanya.getSonTarih() + "\nNet Fiyat: " + selectedUrun.netFiyat());
+                                "\nİndirim: " + indirim + "%\nEk Ürün: " + secilenEkUrun + "\nSon Tarih: " + kampanya.getSonTarih() + "\nNet Fiyat: " + selectedUrun.netFiyat());
                         	kampanyaEklePenceresi.dispose();
                         }
                         
@@ -918,7 +1283,6 @@ public class GUI {
             JTextField siparisNoField = new JTextField(10);
 
             JLabel tedarikciLabel = new JLabel("Tedarikçi:");
-            ArrayList<String> tedarikciler = new ArrayList<>();
             JComboBox<String> tedarikciCombo = new JComboBox<>();
             for (Marka marka : sistem.getMarkalar()) {
                 tedarikciCombo.addItem(marka.getName());

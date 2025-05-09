@@ -93,5 +93,24 @@ public class Sistem implements Serializable {
 		}
 		return null;
 	}
+	public Urun getUrunbyName(String name) {
+		for (Urun urun : urunler) {
+			if(urun.getIsim().equals(name)) return urun;
+		}
+		return null;
+	}
+	public Magaza getMagazabyName(String name) {
+		for (Magaza magaza : magazalar) {
+			if(magaza.getMagazaAdi().equals(name)) return magaza;
+		}
+		return null;
+	}
+	public Personel getPersonelbyName(String name) {
+		for (Personel personel : personeller) {
+			if(personel.getAdSoyad().equals(name)) return personel;
+		}
+		return null;
+	}
+	
 	
 }

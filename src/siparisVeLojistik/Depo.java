@@ -43,6 +43,13 @@ public class Depo implements Serializable{
 	
 	public void setToplamUrunMiktari(int urunMiktari) {this.toplamUrunMiktari = urunMiktari;}
 	
+	public ArrayList<DepoUrun> getUrunler() {
+		return urunler;
+	}
+	public int getUrunBasinaDepoKapasitesi() {
+		return urunBasinaDepoKapasitesi;
+	}
+	
 	public boolean addUrun(DepoUrun siparisUrun) {
 		if(siparisUrun.getAdet()+toplamUrunMiktari<=depoKapasitesi) {
 			for(DepoUrun mevcutUrun : urunler) {

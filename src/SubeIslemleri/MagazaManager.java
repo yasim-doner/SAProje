@@ -40,6 +40,10 @@ public class MagazaManager implements Serializable{
             System.out.println(personel.getAdSoyad() + " - Gorev: " + personel.getGorev());
         }
     }
+    
+    public void setMagaza(Magaza magaza) {
+		this.magaza = magaza;
+	}
     public void siparisOlustur(Map<Urun, Integer> istenenUrunler) {
         Map<Urun, Integer> gecerliSiparisler = new HashMap<>();
 
@@ -71,7 +75,7 @@ public class MagazaManager implements Serializable{
 
     
     public void musteriSepettenSatinAl(Musteri musteri) {
-        Map<Urun, Integer> sepet = musteri.getSepet();
+        Map<Urun, Integer> sepet = musteri.getSepet();       
 
         for (Map.Entry<Urun, Integer> entry : sepet.entrySet()) {
             Urun urun = entry.getKey();
